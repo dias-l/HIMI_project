@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="text-primary mb-4">📅 Emploi du Temps</h2>
+
+{% if planning %}
+<div class="table-responsive">
+    <table class="table table-bordered text-center shadow-sm">
+        <thead class="table-primary text-white">
+            <tr>
+                <th>Jour</th>
+                <th>Horaire</th>
+                <th>Matière</th>
+                <th>Salle</th>
+                <th>Info</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cours in planning %}
+            <tr>
+                <td class="fw-bold bg-light">{{ cours.jour }}</td>
+                <td>{{ cours.heure_debut|date:"H:i" }} - {{ cours.heure_fin|date:"H:i" }}</td>
+                <td><span class="badge bg-info text-dark fs-6">{{ cours.matiere.nom }}</span></td>
+                <td>{{ cours.salle }}</td>
+                <td class="text-muted small">
+                    {% if user.profil_etudiant %}
+                        Prof. {{ cours.professeur.user.last_name }}
+                    {% else %}
+                        Classe : {{ cours.classe.nom }}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <div class="alert alert-warning">Aucun cours planifié pour le moment.</div>
+{% endif %}
+{% endblock %}

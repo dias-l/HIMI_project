@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-primary">📚 Supports de Cours</h2>
+    {% if user.profil_professeur %}
+        <a href="{% url 'ajouter_cours' %}" class="btn btn-success">+ Ajouter un document</a>
+    {% endif %}
+</div>
+
+<div class="row">
+    {% for pdf in cours %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm border-0 bg-light">
+            <div class="card-body text-center">
+                <div class="mb-3 text-primary display-4">📄</div>
+                <h5 class="card-title">{{ pdf.matiere.nom }}</h5>
+                <p class="card-text fw-bold">{{ pdf.titre }}</p>
+                <p class="small text-muted">Ajouté le {{ pdf.date_ajout|date:"d/m/Y" }}</p>
+                <a href="{{ pdf.fichier.url }}" class="btn btn-outline-primary w-100" target="_blank">📥 Télécharger</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="alert alert-secondary">Aucun document disponible.</div></div>
+    {% endfor %}
+</div>
+{% endblock %}

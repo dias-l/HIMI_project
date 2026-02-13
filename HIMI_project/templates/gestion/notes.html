@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if role == 'prof' %}
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card bg-light mb-4">
+                <div class="card-header bg-primary text-white">Saisir une note</div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h3 class="text-primary mb-3">Historique des notes données</h3>
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date</th>
+                        <th>Élève</th>
+                        <th>Matière</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for note in notes %}
+                    <tr>
+                        <td>{{ note.date|date:"d/m" }}</td>
+                        <td>{{ note.etudiant }}</td>
+                        <td>{{ note.matiere }}</td>
+                        <td><span class="badge bg-primary">{{ note.valeur }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
