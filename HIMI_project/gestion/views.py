@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import NoteForm, CoursForm
+from django.db.models import Q
+from .models import Message
+from .forms import MessageForm
 
 def accueil(request):
     news = Actualite.objects.all().order_by('-date_publication')
@@ -84,3 +87,58 @@ def ajouter_cours(request):
     else:
         form = CoursForm(professeur=prof)
     return render(request, 'gestion/ajouter_cours.html', {'form': form})
+
+# --- VUES MESSAGERIE ---
+
+@login_required
+def messagerie(request):
+    # Récupérer tous les messages où l'utilisateur est impliqué
+    messages = Message.objects.filter(
+        Q(expediteur=request.user) | Q(destinataire=request.user)
+    ).order_by('-date_envoi')
+    
+    # Extraire les contacts uniques
+    contacts = []
+    vus = set()
+    for msg in messages:
+        contact = msg.destinataire if msg.expediteur == request.user else msg.expediteur
+        if contact.id not in vus:
+            vus.add(contact.id)
+            contacts.append(contact)
+            
+    return render(request, 'gestion/messagerie.html', {'contacts': contacts})
+
+@login_required
+def nouveau_message(request):
+    if request.method == 'POST':
+        form = MessageForm(request.POST, user=request.user)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.expediteur = request.user
+            msg.save()
+            return redirect('discussion', user_id=msg.destinataire.id)
+    else:
+        form = MessageForm(user=request.user)
+    return render(request, 'gestion/nouveau_message.html', {'form': form})
+
+@login_required
+def discussion(request, user_id):
+    contact = User.objects.get(id=user_id)
+    
+    # Marquer les messages reçus comme "lus"
+    Message.objects.filter(expediteur=contact, destinataire=request.user, lu=False).update(lu=True)
+    
+    # Traitement de la réponse rapide
+    if request.method == 'POST':
+        contenu = request.POST.get('contenu')
+        if contenu:
+            Message.objects.create(expediteur=request.user, destinataire=contact, contenu=contenu)
+            return redirect('discussion', user_id=user_id)
+
+    # Récupérer l'historique du chat
+    historique = Message.objects.filter(
+        Q(expediteur=request.user, destinataire=contact) |
+        Q(expediteur=contact, destinataire=request.user)
+    ).order_by('date_envoi')
+    
+    return render(request, 'gestion/discussion.html', {'contact': contact, 'messages': historique})

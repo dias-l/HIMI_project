@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex align-items-center mb-3 border-bottom pb-2">
+    <a href="{% url 'messagerie' %}" class="btn btn-outline-secondary btn-sm me-3">⬅ Retour</a>
+    <h3 class="text-primary mb-0">Discussion avec {{ contact.first_name }} {{ contact.last_name }}</h3>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body" style="height: 400px; overflow-y: scroll; background-color: #f1f5f9;" id="chat-box">
+        {% for msg in messages %}
+            {% if msg.expediteur == request.user %}
+                <div class="d-flex justify-content-end mb-3">
+                    <div class="bg-primary text-white rounded p-2 px-3 shadow-sm" style="max-width: 75%;">
+                        {{ msg.contenu|linebreaksbr }}
+                        <div class="small text-white-50 text-end mt-1" style="font-size: 0.7rem;">{{ msg.date_envoi|date:"H:i" }}</div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="d-flex justify-content-start mb-3">
+                    <div class="bg-white text-dark rounded border p-2 px-3 shadow-sm" style="max-width: 75%;">
+                        {{ msg.contenu|linebreaksbr }}
+                        <div class="small text-muted text-start mt-1" style="font-size: 0.7rem;">{{ msg.date_envoi|date:"H:i" }}</div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <div class="text-center text-muted mt-5">Dites bonjour ! 👋</div>
+        {% endfor %}
+    </div>
+    
+    <div class="card-footer bg-white border-top-0">
+        <form method="post" class="d-flex">
+            {% csrf_token %}
+            <input type="text" name="contenu" class="form-control me-2 rounded-pill" placeholder="Votre message..." required autocomplete="off">
+            <button type="submit" class="btn btn-primary rounded-pill px-4">Envoyer</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    var chatBox = document.getElementById("chat-box");
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

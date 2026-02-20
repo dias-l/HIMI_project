@@ -65,3 +65,15 @@ class Actualite(models.Model):
     contenu = models.TextField()
     date_publication = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='news/', blank=True, null=True)
+
+# À rajouter à la fin de models.py
+
+class Message(models.Model):
+    expediteur = models.ForeignKey(User, related_name='messages_envoyes', on_delete=models.CASCADE)
+    destinataire = models.ForeignKey(User, related_name='messages_recus', on_delete=models.CASCADE)
+    contenu = models.TextField()
+    date_envoi = models.DateTimeField(auto_now_add=True)
+    lu = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"De {self.expediteur} à {self.destinataire} le {self.date_envoi.strftime('%d/%m/%Y')}"

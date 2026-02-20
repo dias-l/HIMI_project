@@ -26,9 +26,13 @@
             <a class="nav-link" href="{% url 'accueil' %}">Actualités</a>
         </li>
 
-        {% if user.is_authenticated %}
+{% if user.is_authenticated %}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'emploi_du_temps' %}">📅 Planning</a>
+            </li>
+            
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'messagerie' %}">💬 Messagerie</a>
             </li>
 
             {% if user.profil_etudiant %}
