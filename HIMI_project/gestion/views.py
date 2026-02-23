@@ -57,11 +57,24 @@ def mon_bulletin(request):
 @login_required
 def emploi_du_temps(request):
     planning = []
+    role = None # On crée une variable pour stocker le rôle
+    
+    # Si c'est un étudiant
     if hasattr(request.user, 'profil_etudiant'):
-        planning = CoursEmploiDuTemps.objects.filter(classe=request.user.profil_etudiant.classe)
+        etudiant = request.user.profil_etudiant
+        planning = CoursEmploiDuTemps.objects.filter(classe=etudiant.classe)
+        role = 'etudiant'
+        
+    # Si c'est un professeur
     elif hasattr(request.user, 'profil_professeur'):
-        planning = CoursEmploiDuTemps.objects.filter(professeur=request.user.profil_professeur)
-    return render(request, 'gestion/emploi_du_temps.html', {'planning': planning})
+        prof = request.user.profil_professeur
+        planning = CoursEmploiDuTemps.objects.filter(professeur=prof)
+        role = 'professeur'
+        
+    return render(request, 'gestion/emploi_du_temps.html', {
+        'planning': planning,
+        'role': role  # On envoie le rôle au fichier HTML
+    })
 
 @login_required
 def liste_cours_pdf(request):

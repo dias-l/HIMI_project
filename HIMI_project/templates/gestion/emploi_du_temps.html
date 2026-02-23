@@ -1,40 +1,183 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2 class="text-primary mb-4">📅 Emploi du Temps</h2>
+<style>
+    /* On cache le panneau gauche de présentation */
+    .left-panel { display: none !important; }
+    /* On force la partie droite à prendre 100% de l'écran */
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 40px !important; }
+    /* On élargit le conteneur pour que les 5 colonnes respirent */
+    .right-panel .container { max-width: 1400px !important; }
 
-{% if planning %}
-<div class="table-responsive">
-    <table class="table table-bordered text-center shadow-sm">
-        <thead class="table-primary text-white">
-            <tr>
-                <th>Jour</th>
-                <th>Horaire</th>
-                <th>Matière</th>
-                <th>Salle</th>
-                <th>Info</th>
-            </tr>
-        </thead>
-        <tbody>
+    /* Style des cartes de cours */
+    .course-card {
+        border-radius: 10px;
+        transition: transform 0.2s;
+        border-left: 5px solid var(--light-blue) !important; /* Couleur par défaut */
+    }
+    .course-card:hover {
+        transform: translateY(-3px);
+    }
+    .time-badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #6c757d;
+        margin-bottom: 5px;
+    }
+    .course-title {
+        font-weight: 700;
+        color: var(--marine-blue);
+        font-size: 1.1rem;
+        margin-bottom: 2px;
+    }
+    .course-details {
+        font-size: 0.85rem;
+        color: #86868b;
+        line-height: 1.4;
+    }
+    
+    /* Titre des jours */
+    .day-title {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: var(--marine-blue);
+        border-bottom: 2px solid rgba(0, 75, 121, 0.1);
+        padding-bottom: 10px;
+    }
+</style>
+
+<div class="container-fluid">
+    
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <h2 class="fw-bold" style="color: var(--marine-blue);">Emploi du Temps</h2>
+        <span class="badge bg-white text-dark shadow-sm px-3 py-2 border">
+            {% if request.user.profil_etudiant %}
+                Classe : {{ request.user.profil_etudiant.classe.nom }}
+            {% elif request.user.profil_professeur %}
+                Espace Professeur
+            {% endif %}
+        </span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 row-cols-xl-5 g-4">
+        
+        <div class="col">
+            <h5 class="day-title">Lundi</h5>
             {% for cours in planning %}
-            <tr>
-                <td class="fw-bold bg-light">{{ cours.jour }}</td>
-                <td>{{ cours.heure_debut|date:"H:i" }} - {{ cours.heure_fin|date:"H:i" }}</td>
-                <td><span class="badge bg-info text-dark fs-6">{{ cours.matiere.nom }}</span></td>
-                <td>{{ cours.salle }}</td>
-                <td class="text-muted small">
-                    {% if user.profil_etudiant %}
-                        Prof. {{ cours.professeur.user.last_name }}
-                    {% else %}
-                        Classe : {{ cours.classe.nom }}
-                    {% endif %}
-                </td>
-            </tr>
+                {% if cours.jour == 'Lundi' %}
+                <div class="card course-card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <div class="time-badge">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</div>
+                        <div class="course-title">{{ cours.matiere.nom }}</div>
+                        <div class="course-details">
+                            {% if request.user.profil_etudiant %}
+                                Prof: {{ cours.professeur.user.last_name }}<br>
+                            {% elif request.user.profil_professeur %}
+                                Classe: {{ cours.classe.nom }}<br>
+                            {% endif %}
+                            Salle: {{ cours.salle }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+
+        <div class="col">
+            <h5 class="day-title">Mardi</h5>
+            {% for cours in planning %}
+                {% if cours.jour == 'Mardi' %}
+                <div class="card course-card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <div class="time-badge">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</div>
+                        <div class="course-title">{{ cours.matiere.nom }}</div>
+                        <div class="course-details">
+                            {% if request.user.profil_etudiant %}
+                                Prof: {{ cours.professeur.user.last_name }}<br>
+                            {% elif request.user.profil_professeur %}
+                                Classe: {{ cours.classe.nom }}<br>
+                            {% endif %}
+                            Salle: {{ cours.salle }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="col">
+            <h5 class="day-title">Mercredi</h5>
+            {% for cours in planning %}
+                {% if cours.jour == 'Mercredi' %}
+                <div class="card course-card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <div class="time-badge">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</div>
+                        <div class="course-title">{{ cours.matiere.nom }}</div>
+                        <div class="course-details">
+                            {% if request.user.profil_etudiant %}
+                                Prof: {{ cours.professeur.user.last_name }}<br>
+                            {% elif request.user.profil_professeur %}
+                                Classe: {{ cours.classe.nom }}<br>
+                            {% endif %}
+                            Salle: {{ cours.salle }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="col">
+            <h5 class="day-title">Jeudi</h5>
+            {% for cours in planning %}
+                {% if cours.jour == 'Jeudi' %}
+                <div class="card course-card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <div class="time-badge">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</div>
+                        <div class="course-title">{{ cours.matiere.nom }}</div>
+                        <div class="course-details">
+                            {% if request.user.profil_etudiant %}
+                                Prof: {{ cours.professeur.user.last_name }}<br>
+                            {% elif request.user.profil_professeur %}
+                                Classe: {{ cours.classe.nom }}<br>
+                            {% endif %}
+                            Salle: {{ cours.salle }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <div class="col">
+            <h5 class="day-title">Vendredi</h5>
+            {% for cours in planning %}
+                {% if cours.jour == 'Vendredi' %}
+                <div class="card course-card border-0 shadow-sm mb-3">
+                    <div class="card-body p-3">
+                        <div class="time-badge">{{ cours.heure_debut|time:"H:i" }} - {{ cours.heure_fin|time:"H:i" }}</div>
+                        <div class="course-title">{{ cours.matiere.nom }}</div>
+                        <div class="course-details">
+                            {% if request.user.profil_etudiant %}
+                                Prof: {{ cours.professeur.user.last_name }}<br>
+                            {% elif request.user.profil_professeur %}
+                                Classe: {{ cours.classe.nom }}<br>
+                            {% endif %}
+                            Salle: {{ cours.salle }}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+    
+    {% if not planning %}
+    <div class="alert alert-warning text-center mt-4 border-0 shadow-sm" role="alert">
+        Aucun cours n'est planifié pour le moment.
+    </div>
+    {% endif %}
 </div>
-{% else %}
-    <div class="alert alert-warning">Aucun cours planifié pour le moment.</div>
-{% endif %}
 {% endblock %}
