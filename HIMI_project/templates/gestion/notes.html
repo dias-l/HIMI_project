@@ -1,46 +1,135 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if role == 'prof' %}
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card bg-light mb-4">
-                <div class="card-header bg-primary text-white">Saisir une note</div>
-                <div class="card-body">
+<style>
+    /* Cache le panel de gauche et force le PLEIN ÉCRAN TOTAL */
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 30px 40px !important; background-color: #f8fafc; overflow-x: hidden; }
+    
+    /* On écrase toutes les limites de base.html */
+    .right-panel > .container, .right-panel > .container-fluid { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+
+    .page-title { color: var(--marine-blue); font-weight: 800; margin-bottom: 2rem; }
+
+    /* Carte du Formulaire */
+    .form-card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .form-card-header { 
+        background-color: var(--marine-blue); 
+        color: white; 
+        border-top-left-radius: 15px !important; 
+        border-top-right-radius: 15px !important; 
+        padding: 20px; 
+        font-weight: bold; 
+        font-size: 1.2rem; 
+    }
+    
+    /* Formulaire */
+    .custom-form p { margin-bottom: 1.2rem; }
+    .custom-form label { font-weight: 600; color: #495057; margin-bottom: 0.5rem; display: block; }
+    .custom-form input, .custom-form select, .custom-form textarea {
+        width: 100%; 
+        padding: 10px 15px; 
+        border: 1px solid #ced4da; 
+        border-radius: 8px; 
+        font-size: 1rem; 
+        transition: 0.2s;
+    }
+    .custom-form input:focus, .custom-form select:focus, .custom-form textarea:focus {
+        border-color: var(--light-blue); 
+        box-shadow: 0 0 0 0.25rem rgba(29, 177, 232, 0.25); 
+        outline: none;
+    }
+    .btn-submit { 
+        background-color: var(--marine-blue); 
+        color: white; 
+        border: none; 
+        padding: 12px; 
+        border-radius: 8px; 
+        font-weight: bold; 
+        width: 100%; 
+        transition: 0.2s; 
+    }
+    .btn-submit:hover { background-color: #003658; transform: translateY(-2px); color: white; }
+
+    /* Carte de l'Historique */
+    .history-card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .table-custom th { color: var(--marine-blue); font-weight: 700; border-bottom: 2px solid var(--light-blue); padding: 15px 15px; }
+    .table-custom td { vertical-align: middle; padding: 15px 15px; border-bottom: 1px solid #f1f5f9; }
+    
+    /* Pastilles de couleur pour les notes */
+    .badge-note { font-size: 1rem; padding: 6px 12px; border-radius: 8px; font-weight: bold; display: inline-block; }
+    .badge-success { background-color: #dcfce7; color: #166534; } /* Vert */
+    .badge-danger { background-color: #fee2e2; color: #991b1b; } /* Rouge */
+</style>
+
+<div class="container-fluid w-100">
+    <h2 class="page-title">Espace Professeur - Gestion des Évaluations</h2>
+
+    {% if role == 'prof' %}
+    <div class="row g-4">
+        
+        <div class="col-lg-3 col-xl-3">
+            <div class="card form-card">
+                <div class="form-card-header">
+                    Nouvelle Évaluation
+                </div>
+                <div class="card-body p-4 custom-form">
                     <form method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                        </div>
+                        <button type="submit" class="btn-submit mt-2">Enregistrer la note</button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
-            <h3 class="text-primary mb-3">Historique des notes données</h3>
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Date</th>
-                        <th>Élève</th>
-                        <th>Matière</th>
-                        <th>Note</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for note in notes %}
-                    <tr>
-                        <td>{{ note.date|date:"d/m" }}</td>
-                        <td>{{ note.etudiant }}</td>
-                        <td>{{ note.matiere }}</td>
-                        <td><span class="badge bg-primary">{{ note.valeur }}</span></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="col-lg-9 col-xl-9">
+            <div class="card history-card h-100">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4" style="color: var(--marine-blue);">Dernières notes saisies</h5>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover table-custom m-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Étudiant</th>
+                                    <th>Matière</th>
+                                    <th class="text-center">Note /20</th>
+                                    <th>Appréciation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for n in notes %}
+                                <tr>
+                                    <td class="text-muted small">{{ n.date|date:"d/m/Y" }}</td>
+                                    <td class="fw-bold" style="color: #334155;">{{ n.etudiant.user.first_name }} {{ n.etudiant.user.last_name }}</td>
+                                    <td>{{ n.matiere.nom }}</td>
+                                    <td class="text-center">
+                                        <span class="badge-note {% if n.valeur >= 10 %}badge-success{% else %}badge-danger{% endif %}">
+                                            {{ n.valeur }}
+                                        </span>
+                                    </td>
+                                    <td class="small text-muted">{{ n.appreciation|default:"-" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div style="font-size: 3rem; opacity: 0.3;">📋</div>
+                                        <p class="text-muted mt-3 mb-0">Vous n'avez pas encore saisi de notes.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                </div>
+            </div>
         </div>
+
     </div>
-{% endif %}
+    {% endif %}
+
+</div>
 {% endblock %}

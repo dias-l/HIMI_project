@@ -1,23 +1,156 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">📤 Mettre un cours en ligne</h4>
-            </div>
-            <div class="card-body">
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-success">Publier le document</button>
-                        <a href="{% url 'liste_cours_pdf' %}" class="btn btn-link text-secondary mt-2">Annuler</a>
-                    </div>
-                </form>
-            </div>
-        </div>
+<style>
+    /* --- DESIGN SOBRE & CENTRAGE ABSOLU --- */
+    .left-panel { display: none !important; }
+    .top-navbar { display: none !important; } 
+    
+    .right-panel { 
+        /* C'est ici que la magie du centrage opère */
+        display: flex !important; 
+        align-items: center !important; 
+        justify-content: center !important; 
+        
+        background-color: var(--marine-blue) !important; 
+        width: 100vw !important;  
+        height: 100vh !important; 
+        padding: 0 !important;
+        margin: 0 !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+
+    /* On force le container Bootstrap à ne pas bloquer le centrage */
+    .right-panel > .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        margin: 0 !important;
+    }
+
+    .upload-wrapper {
+        width: 90%;
+        max-width: 500px; /* Largeur de la carte */
+        animation: slideUp 0.4s ease-out;
+    }
+
+    .upload-card {
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        padding: 40px;
+        border: none;
+    }
+
+    .upload-title {
+        font-weight: 800;
+        color: var(--marine-blue);
+        margin-bottom: 5px;
+        text-align: center;
+        font-size: 1.6rem;
+    }
+
+    .upload-subtitle {
+        color: #64748b;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 0.9rem;
+    }
+
+    /* --- FORMULAIRE --- */
+    .custom-upload-form p { margin-bottom: 1.2rem; }
+    
+    .custom-upload-form label {
+        font-weight: 600;
+        color: #334155;
+        margin-bottom: 6px;
+        display: block;
+        font-size: 0.85rem;
+    }
+    
+    .custom-upload-form input, 
+    .custom-upload-form select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #f1f5f9;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        background-color: #f8fafc;
+        transition: 0.3s;
+    }
+    
+    .custom-upload-form input:focus, 
+    .custom-upload-form select:focus {
+        border-color: var(--light-blue);
+        background-color: white;
+        outline: none;
+    }
+
+    /* Style spécifique pour le champ fichier */
+    .custom-upload-form input[type="file"] {
+        padding: 8px;
+        background: white;
+        border: 2px dashed #cbd5e1;
+    }
+
+    .btn-publish {
+        background-color: var(--marine-blue);
+        color: white;
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        margin-top: 20px;
+        transition: 0.3s;
+    }
+    
+    .btn-publish:hover {
+        background-color: #003658;
+        transform: translateY(-2px);
+    }
+
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        color: #94a3b8;
+        text-decoration: none;
+        font-size: 0.9rem;
+        margin-top: 15px;
+        font-weight: 500;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="upload-wrapper">
+    <div class="card upload-card">
+        
+        <h2 class="upload-title">Mettre un cours en ligne </h2>
+        <p class="upload-subtitle">Partagez vos supports avec vos étudiants</p>
+        
+        <form method="post" enctype="multipart/form-data" class="custom-upload-form">
+            {% csrf_token %}
+            
+            {{ form.as_p }}
+            
+            <button type="submit" class="btn-publish shadow-sm">
+                Publier le document
+            </button>
+            
+            <a href="{% url 'liste_cours_pdf' %}" class="btn-cancel">
+                Annuler et retourner aux cours
+            </a>
+        </form>
+
     </div>
 </div>
 {% endblock %}
