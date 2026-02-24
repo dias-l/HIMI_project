@@ -1,18 +1,71 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary">💬 Messagerie</h2>
-    <a href="{% url 'nouveau_message' %}" class="btn btn-primary">+ Nouveau Message</a>
-</div>
 
-<div class="list-group shadow-sm">
-    {% for contact in contacts %}
-        <a href="{% url 'discussion' contact.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
-            <div class="fw-bold text-primary">{{ contact.first_name }} {{ contact.last_name }}</div>
-            <span class="badge bg-secondary rounded-pill">Ouvrir</span>
-        </a>
-    {% empty %}
-        <div class="alert alert-info">Vous n'avez aucune conversation active. Cliquez sur "Nouveau Message" pour commencer.</div>
-    {% endfor %}
+{% block content %}
+<style>
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 0 !important; overflow: hidden; }
+    .right-panel > .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+
+    .wa-container { display: flex; height: calc(100vh - 60px); width: 100%; }
+    
+    .wa-sidebar { width: 30%; flex: 0 0 30%; background: white; border-right: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+    .wa-sidebar-header { height: 65px; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #e9ecef; }
+    .btn-new-msg { background-color: var(--marine-blue); color: white; border-radius: 20px; padding: 6px 15px; font-size: 0.85rem; font-weight: bold; text-decoration: none; transition: 0.2s; }
+    .btn-new-msg:hover { background-color: #003658; color: white; }
+    
+    .wa-contacts { flex: 1; overflow-y: auto; }
+    .wa-contact-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f2f2f2; text-decoration: none; color: inherit; transition: 0.2s; }
+    .wa-contact-item:hover { background: #f5f6f6; }
+    .wa-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--light-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
+
+    /* PANNEAU DROIT : FOND BLEU MARINE */
+    .wa-chat-area { 
+        width: 70%; 
+        flex: 0 0 70%; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        background-color: var(--marine-blue); 
+    }
+</style>
+
+<div class="wa-container">
+    
+    <div class="wa-sidebar">
+        <div class="wa-sidebar-header">
+            <h5 class="m-0 fw-bold" style="color: var(--marine-blue);">Discussions</h5>
+            <a href="{% url 'nouveau_message' %}" class="btn-new-msg">+ Nouveau</a>
+        </div>
+        
+        <div class="wa-contacts">
+            {% for c in contacts %}
+            <a href="{% url 'discussion' c.id %}" class="wa-contact-item">
+                <div class="wa-avatar">
+                    {{ c.first_name|first|default:c.username|first|upper }}
+                </div>
+                <div>
+                    <div class="fw-bold" style="color: #111; font-size: 1.05rem;">
+                        {% if c.first_name %}{{ c.first_name }} {{ c.last_name }}{% else %}{{ c.username }}{% endif %}
+                    </div>
+                    <div class="text-muted small" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px;">
+                        Cliquez pour ouvrir la discussion
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <div class="p-4 text-center text-muted small mt-4">
+                Aucune discussion en cours.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="wa-chat-area">
+        <div style="font-size: 5rem; opacity: 0.1;">💬</div>
+        <h3 class="mt-4 text-white fw-light" style="opacity: 0.9;">HIMI Web Chat</h3>
+        <p class="text-white" style="opacity: 0.6;">Sélectionnez une conversation dans le menu de gauche.</p>
+    </div>
+
 </div>
 {% endblock %}

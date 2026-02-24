@@ -1,57 +1,190 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h2 class="text-primary">📄 Bulletin de Notes</h2>
-        <h5 class="text-muted">Élève : {{ etudiant }} | Classe : {{ etudiant.classe }}</h5>
+<style>
+    /* On cache le panneau gauche pour bien centrer le bulletin */
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 40px 20px !important; }
+
+    /* Le conteneur central (Façon page A4) */
+    .bulletin-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* La carte principale */
+    .bulletin-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        border: none;
+    }
+
+    /* L'en-tête bleu marine */
+    .bulletin-header {
+        background-color: var(--marine-blue);
+        color: white;
+        padding: 40px;
+        text-align: center;
+        position: relative;
+    }
+
+    .school-name { font-size: 1.2rem; letter-spacing: 2px; opacity: 0.8; margin-bottom: 5px; }
+    .student-name { font-size: 2.2rem; font-weight: 800; margin-bottom: 0; }
+    .student-class { font-size: 1.1rem; opacity: 0.9; margin-top: 5px; }
+
+    /* Le bloc de la moyenne */
+    .moyenne-badge {
+        background-color: white;
+        color: var(--marine-blue);
+        display: inline-block;
+        padding: 15px 40px;
+        border-radius: 50px;
+        font-size: 1.5rem;
+        font-weight: 800;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-top: -30px; /* Fait chevaucher le badge sur la bordure */
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Le style du tableau */
+    .table-custom {
+        margin-top: 30px;
+        margin-bottom: 0;
+    }
+    .table-custom th {
+        color: var(--marine-blue);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        border-bottom: 2px solid var(--light-blue);
+        padding: 15px;
+    }
+    .table-custom td {
+        padding: 15px;
+        vertical-align: middle;
+        color: #4a5568;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .subject-name { font-weight: 600; color: #2d3748; }
+    .grade-value { font-weight: 800; font-size: 1.1rem; }
+    
+    /* Code couleur pour les notes */
+    .text-success-custom { color: #38a169; } /* Vert (>= 10) */
+    .text-danger-custom { color: #e53e3e; } /* Rouge (< 10) */
+    .text-waiting { color: #a0aec0; font-style: italic; }
+
+    /* Bouton d'impression */
+    .btn-print {
+        background-color: #f1f5f9;
+        color: var(--marine-blue);
+        border: none;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+    .btn-print:hover { background-color: #e2e8f0; }
+
+    /* Style spécifique pour l'impression (cache les boutons quand on imprime) */
+    @media print {
+        body { background-color: white !important; }
+        .right-panel { padding: 0 !important; }
+        .bulletin-card { box-shadow: none !important; border: 1px solid #ddd; }
+        .btn-print, .top-navbar { display: none !important; }
+    }
+</style>
+
+<div class="bulletin-container">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold m-0" style="color: var(--marine-blue);">Mon Bulletin</h2>
+        <button onclick="window.print()" class="btn btn-print rounded-pill px-4 shadow-sm">
+            🖨️ Imprimer / PDF
+        </button>
     </div>
-    <button onclick="window.print()" class="btn btn-outline-secondary">🖨️ Imprimer</button>
+
+    <div class="card bulletin-card">
+        
+        <div class="bulletin-header">
+            <div class="school-name">HIMI BUSINESS SCHOOL</div>
+            <h1 class="student-name">{{ etudiant.user.first_name }} {{ etudiant.user.last_name }}</h1>
+            <div class="student-class">Classe : {{ etudiant.classe.nom }}</div>
+        </div>
+
+        <div class="text-center">
+            <div class="moyenne-badge">
+                {% if moyenne_generale %}
+                    Moyenne : {{ moyenne_generale.valeur }} / 20
+                {% else %}
+                    Moyenne : En cours...
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-md-5">
+            
+            {% if moyenne_generale.decision %}
+                <div class="alert alert-info text-center fw-bold mb-4" style="background-color: #e6f4fc; color: var(--marine-blue); border: none;">
+                    Décision du jury : {{ moyenne_generale.decision }}
+                </div>
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-custom table-hover">
+                    <thead>
+                        <tr>
+                            <th width="30%">Matière</th>
+                            <th width="15%" class="text-center">Coef.</th>
+                            <th width="15%" class="text-center">Note /20</th>
+                            <th width="40%">Appréciation du professeur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in bulletin %}
+                        <tr>
+                            <td class="subject-name">{{ ligne.matiere }}</td>
+                            <td class="text-center">{{ ligne.coefficient }}</td>
+                            
+                            <td class="text-center grade-value">
+                                {% if ligne.note %}
+                                    <span class="{% if ligne.note >= 10 %}text-success-custom{% else %}text-danger-custom{% endif %}">
+                                        {{ ligne.note }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-waiting">-</span>
+                                {% endif %}
+                            </td>
+                            
+                            <td>
+                                {% if ligne.note %}
+                                    {{ ligne.appreciation }}
+                                {% else %}
+                                    <span class="text-waiting">Note non saisie</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted fst-italic">
+                                Aucun cours n'est assigné pour le moment.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-5 pt-4 border-top d-flex justify-content-between text-muted small">
+                <div>Document généré le {% now "d/m/Y" %}</div>
+                <div class="text-end text-uppercase" style="letter-spacing: 1px; font-weight: bold; color: var(--marine-blue);">
+                    La Direction HIMI
+                </div>
+            </div>
+
+        </div>
+    </div>
 </div>
-
-<table class="table table-striped table-bordered">
-    <thead class="bg-primary text-white">
-        <tr>
-            <th>Matière</th>
-            <th>Note / 20</th>
-            <th>Coeff.</th>
-            <th>Appréciation / État</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for ligne in bulletin %}
-        <tr>
-            <td class="fw-bold">{{ ligne.matiere }}</td>
-            <td>
-                {% if ligne.note is not None %}
-                    <strong class="text-primary">{{ ligne.note }}</strong>
-                {% else %}
-                    <span class="text-muted">--</span>
-                {% endif %}
-            </td>
-            <td>{{ ligne.coefficient }}</td>
-            <td>
-                {% if ligne.note is not None %}
-                    {{ ligne.appreciation }}
-                {% else %}
-                    <small class="text-muted fst-italic">En attente de saisie</small>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr><td colspan="4" class="text-center">Aucune matière affectée.</td></tr>
-        {% endfor %}
-    </tbody>
-
-    {% if moyenne_generale %}
-    <tfoot class="table-primary border-top border-3 border-primary">
-        <tr class="fw-bold">
-            <td class="text-uppercase">Moyenne Générale</td>
-            <td class="fs-5">{{ moyenne_generale.valeur }} / 20</td>
-            <td></td>
-            <td>{{ moyenne_generale.decision }}</td>
-        </tr>
-    </tfoot>
-    {% endif %}
-</table>
 {% endblock %}

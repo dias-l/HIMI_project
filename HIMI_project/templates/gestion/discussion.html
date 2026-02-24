@@ -1,44 +1,143 @@
 {% extends 'base.html' %}
-{% block content %}
-<div class="d-flex align-items-center mb-3 border-bottom pb-2">
-    <a href="{% url 'messagerie' %}" class="btn btn-outline-secondary btn-sm me-3">⬅ Retour</a>
-    <h3 class="text-primary mb-0">Discussion avec {{ contact.first_name }} {{ contact.last_name }}</h3>
-</div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body" style="height: 400px; overflow-y: scroll; background-color: #f1f5f9;" id="chat-box">
-        {% for msg in messages %}
-            {% if msg.expediteur == request.user %}
-                <div class="d-flex justify-content-end mb-3">
-                    <div class="bg-primary text-white rounded p-2 px-3 shadow-sm" style="max-width: 75%;">
-                        {{ msg.contenu|linebreaksbr }}
-                        <div class="small text-white-50 text-end mt-1" style="font-size: 0.7rem;">{{ msg.date_envoi|date:"H:i" }}</div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="d-flex justify-content-start mb-3">
-                    <div class="bg-white text-dark rounded border p-2 px-3 shadow-sm" style="max-width: 75%;">
-                        {{ msg.contenu|linebreaksbr }}
-                        <div class="small text-muted text-start mt-1" style="font-size: 0.7rem;">{{ msg.date_envoi|date:"H:i" }}</div>
-                    </div>
-                </div>
-            {% endif %}
-        {% empty %}
-            <div class="text-center text-muted mt-5">Dites bonjour ! 👋</div>
-        {% endfor %}
-    </div>
+{% block content %}
+<style>
+    /* --- FORCER LE PLEIN ÉCRAN --- */
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 0 !important; overflow: hidden; }
     
-    <div class="card-footer bg-white border-top-0">
-        <form method="post" class="d-flex">
-            {% csrf_token %}
-            <input type="text" name="contenu" class="form-control me-2 rounded-pill" placeholder="Votre message..." required autocomplete="off">
-            <button type="submit" class="btn btn-primary rounded-pill px-4">Envoyer</button>
-        </form>
+    /* C'est cette ligne qui fait sauter la limite de largeur de base.html ! */
+    .right-panel > .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+
+    /* LE CONTENEUR PRINCIPAL */
+    .wa-container { display: flex; height: calc(100vh - 60px); width: 100%; }
+    
+    /* --- PANNEAU GAUCHE : 30% --- */
+    .wa-sidebar { 
+        width: 30%; 
+        flex: 0 0 30%; 
+        background: white; 
+        border-right: 1px solid rgba(0,0,0,0.1); 
+        display: flex; 
+        flex-direction: column; 
+    }
+    .wa-sidebar-header { height: 65px; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #e9ecef; }
+    .btn-new-msg { background-color: var(--marine-blue); color: white; border-radius: 20px; padding: 6px 15px; font-size: 0.85rem; font-weight: bold; text-decoration: none; transition: 0.2s; }
+    .btn-new-msg:hover { background-color: #003658; color: white; }
+    
+    .wa-contacts { flex: 1; overflow-y: auto; }
+    .wa-contact-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f2f2f2; text-decoration: none; color: inherit; transition: 0.2s; }
+    .wa-contact-item:hover { background: #f5f6f6; }
+    .wa-contact-item.active { background: #e6f4fc; border-left: 4px solid var(--marine-blue); } 
+    
+    .wa-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--light-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
+
+    /* --- PANNEAU DROIT : 70% (FOND BLEU MARINE) --- */
+    .wa-chat-area { 
+        width: 70%; 
+        flex: 0 0 70%; 
+        display: flex; 
+        flex-direction: column; 
+        background-color: var(--marine-blue); /* Ton fond bleu marine demandé */
+    }
+    
+    .wa-chat-history { flex: 1; overflow-y: auto; padding: 30px 50px; display: flex; flex-direction: column; }
+    
+    /* Les Bulles de discussion */
+    .wa-bubble { max-width: 65%; padding: 10px 15px; border-radius: 12px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; }
+    
+    /* Bulle Envoyée (Droite) */
+    .wa-bubble.sent { align-self: flex-end; background-color: #dcf8c6; border-top-right-radius: 0; color: #111; }
+    
+    /* Bulle Reçue (Gauche) */
+    .wa-bubble.received { align-self: flex-start; background-color: white; border-top-left-radius: 0; color: #111; }
+
+    .wa-time { font-size: 0.7rem; color: #666; text-align: right; margin-top: 5px; display: block; }
+
+    /* Zone de texte en bas (Adaptée au fond sombre) */
+    .wa-input-area { background: rgba(0, 0, 0, 0.2); padding: 15px 30px; display: flex; align-items: center; gap: 15px; }
+    .wa-input { flex: 1; padding: 12px 20px; border: none; border-radius: 25px; outline: none; background: white; font-size: 1rem; }
+    .wa-btn-send { background: var(--light-blue); border: none; border-radius: 50%; width: 50px; height: 50px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;}
+    .wa-btn-send:hover { transform: scale(1.05); }
+    
+    /* Scrollbar discrète */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+</style>
+
+<div class="wa-container">
+    
+    <div class="wa-sidebar">
+        <div class="wa-sidebar-header">
+            <h5 class="m-0 fw-bold" style="color: var(--marine-blue);">Discussions</h5>
+            <a href="{% url 'nouveau_message' %}" class="btn-new-msg">+ Nouveau</a>
+        </div>
+        
+        <div class="wa-contacts">
+            {% for c in contacts %}
+            <a href="{% url 'discussion' c.id %}" class="wa-contact-item {% if c.id == contact.id %}active{% endif %}">
+                <div class="wa-avatar">
+                    {{ c.first_name|first|default:c.username|first|upper }}
+                </div>
+                <div>
+                    <div class="fw-bold" style="color: #111; font-size: 1.05rem;">
+                        {% if c.first_name %}{{ c.first_name }} {{ c.last_name }}{% else %}{{ c.username }}{% endif %}
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="wa-chat-area">
+        
+        <div class="wa-chat-history" id="chatBox">
+            
+            <div class="text-center mb-4 mt-2">
+                <span class="badge" style="background-color: rgba(255,255,255,0.1); color: white; font-weight: 500; padding: 8px 15px; border-radius: 15px;">
+                    Aujourd'hui
+                </span>
+            </div>
+
+            {% for msg in messages %}
+                {% if msg.expediteur == request.user %}
+                    <div class="wa-bubble sent">
+                        {{ msg.contenu|linebreaksbr }}
+                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
+                    </div>
+                {% else %}
+                    <div class="wa-bubble received">
+                        {{ msg.contenu|linebreaksbr }}
+                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
+                    </div>
+                {% endif %}
+            {% empty %}
+                <div class="text-center text-white mt-4" style="opacity: 0.6;">
+                    Envoyez un message pour commencer.
+                </div>
+            {% endfor %}
+            
+        </div>
+
+        <div class="wa-input-area">
+            <form method="post" action="{% url 'discussion' contact.id %}" class="d-flex w-100 m-0 gap-3">
+                {% csrf_token %}
+                <input type="text" name="contenu" class="wa-input shadow-sm" placeholder="Taper un message..." autocomplete="off" required>
+                <button type="submit" class="wa-btn-send shadow-sm">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+
     </div>
 </div>
 
 <script>
-    var chatBox = document.getElementById("chat-box");
-    chatBox.scrollTop = chatBox.scrollHeight;
+    document.addEventListener("DOMContentLoaded", function() {
+        var chatBox = document.getElementById("chatBox");
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
 </script>
 {% endblock %}

@@ -141,7 +141,6 @@ def discussion(request, user_id):
     # Marquer les messages reçus comme "lus"
     Message.objects.filter(expediteur=contact, destinataire=request.user, lu=False).update(lu=True)
     
-    # Traitement de la réponse rapide
     if request.method == 'POST':
         contenu = request.POST.get('contenu')
         if contenu:
@@ -154,4 +153,22 @@ def discussion(request, user_id):
         Q(expediteur=contact, destinataire=request.user)
     ).order_by('date_envoi')
     
-    return render(request, 'gestion/discussion.html', {'contact': contact, 'messages': historique})
+    # --- NOUVEAU : On récupère aussi la liste des contacts pour la barre de gauche ---
+    messages_all = Message.objects.filter(
+        Q(expediteur=request.user) | Q(destinataire=request.user)
+    ).order_by('-date_envoi')
+    
+    contacts = []
+    vus = set()
+    for msg in messages_all:
+        c = msg.destinataire if msg.expediteur == request.user else msg.expediteur
+        if c.id not in vus:
+            vus.add(c.id)
+            contacts.append(c)
+            
+    # On envoie 'contacts' en plus à la page !
+    return render(request, 'gestion/discussion.html', {
+        'contact': contact, 
+        'messages': historique,
+        'contacts': contacts 
+    })
