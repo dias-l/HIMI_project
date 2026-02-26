@@ -6,9 +6,31 @@ from django.db.models import Q
 from .models import Message
 from .forms import MessageForm
 
+@login_required
 def accueil(request):
-    news = Actualite.objects.all().order_by('-date_publication')
-    return render(request, 'gestion/accueil.html', {'actualites': news})
+    user = request.user
+    context = {}
+    
+    # 1. Le bloc "Annonces Internes" (On garde ton modèle Actualite !)
+    # On prend seulement les 4 dernières annonces pour ne pas surcharger la page
+    context['annonces'] = Actualite.objects.all().order_by('-date_publication')[:4]
+    
+    # 2. Le Tableau de Bord personnalisé
+    if hasattr(user, 'profil_etudiant'):
+        context['role'] = 'etudiant'
+        etudiant = user.profil_etudiant
+        context['profil'] = etudiant
+        # Les 3 dernières notes de l'étudiant
+        context['dernieres_notes'] = Note.objects.filter(etudiant=etudiant).order_by('-date')[:3]
+        
+    elif hasattr(user, 'profil_professeur'):
+        context['role'] = 'professeur'
+        prof = user.profil_professeur
+        context['profil'] = prof
+        # Les 3 dernières notes saisies par le prof
+        context['dernieres_notes'] = Note.objects.filter(professeur=prof).order_by('-date')[:3]
+        
+    return render(request, 'gestion/accueil.html', context)
 
 @login_required
 def espace_notes(request):
@@ -17,42 +39,72 @@ def espace_notes(request):
     
     if hasattr(user, 'profil_professeur'):
         prof = user.profil_professeur
+        
         if request.method == 'POST':
-            form = NoteForm(request.POST, professeur=prof)
+            form = NoteForm(request.POST)
+            
             if form.is_valid():
-                note = form.save(commit=False)
-                note.professeur = prof
-                note.save()
+                # On récupère l'étudiant et la matière PROPREMENT via Django
+                etud = form.cleaned_data.get('etudiant')
+                mat = form.cleaned_data.get('matiere')
+                
+                # On cherche si cette ligne existe déjà
+                note_existante = Note.objects.filter(etudiant=etud, matiere=mat).first()
+                
+                if note_existante:
+                    # ♻️ MISE À JOUR : On remplace les anciennes valeurs
+                    note_existante.note_test = form.cleaned_data.get('note_test')
+                    note_existante.note_examen = form.cleaned_data.get('note_examen')
+                    note_existante.note_rattrapage = form.cleaned_data.get('note_rattrapage')
+                    note_existante.appreciation = form.cleaned_data.get('appreciation')
+                    note_existante.professeur = prof
+                    note_existante.save()
+                else:
+                    # 🆕 CRÉATION : C'est une toute nouvelle note
+                    note = form.save(commit=False)
+                    note.professeur = prof
+                    note.save()
+                    
+                # On recharge la page pour vider le formulaire
                 return redirect('espace_notes')
         else:
-            form = NoteForm(professeur=prof)
-        context = {'role': 'prof', 'form': form, 'notes': Note.objects.filter(professeur=prof).order_by('-date')}
-    
-    elif hasattr(user, 'profil_etudiant'):
-        return redirect('mon_bulletin')
-
-    return render(request, 'gestion/notes.html', context)
+            form = NoteForm()
+            
+        context['form'] = form
+        context['notes'] = Note.objects.filter(professeur=prof).order_by('-date')
+        return render(request, 'gestion/espace_notes.html', context)
+        
+    return redirect('accueil')
 
 @login_required
 def mon_bulletin(request):
     user = request.user
-    if not hasattr(user, 'profil_etudiant'): return redirect('accueil')
+    context = {}
     
-    etudiant = user.profil_etudiant
-    matieres = Matiere.objects.filter(professeur__classes=etudiant.classe).distinct()
-    bulletin = []
-    
-    for matiere in matieres:
-        note = Note.objects.filter(etudiant=etudiant, matiere=matiere).first()
-        bulletin.append({
-            'matiere': matiere.nom,
-            'note': note.valeur if note else None,
-            'appreciation': note.appreciation if note else "En attente",
-            'coefficient': note.coefficient if note else 1,
-        })
+    if hasattr(user, 'profil_etudiant'):
+        etudiant = user.profil_etudiant
+        notes = Note.objects.filter(etudiant=etudiant).order_by('matiere__nom')
         
-    moyenne = Moyenne.objects.filter(etudiant=etudiant, est_publie=True).first()
-    return render(request, 'gestion/bulletin.html', {'etudiant': etudiant, 'bulletin': bulletin, 'moyenne_generale': moyenne})
+        # Calcul de la moyenne générale du semestre
+        total_points = 0
+        nombre_notes = 0
+        
+        for n in notes:
+            if n.moyenne is not None:
+                total_points += float(n.moyenne)
+                nombre_notes += 1
+                
+        moyenne_generale = round(total_points / nombre_notes, 2) if nombre_notes > 0 else None
+        
+        context = {
+            'role': 'etudiant',
+            'etudiant': etudiant,
+            'notes': notes,
+            'moyenne_generale': moyenne_generale
+        }
+        return render(request, 'gestion/bulletin.html', context)
+        
+    return redirect('accueil')
 
 @login_required
 def emploi_du_temps(request):

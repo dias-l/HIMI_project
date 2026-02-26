@@ -3,26 +3,44 @@ import sys
 import threading
 import time
 import webview
+import ctypes
 from django.core.management import execute_from_command_line
 
-# 1. Fonction pour démarrer le moteur Django en arrière-plan
+# --- LA MAGIE POUR WINDOWS ---
+try:
+    myappid = 'himi.business.school.app.1'
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except Exception:
+    pass
+
 def run_django():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'HIMI_project.settings')
     sys.argv = ['manage.py', 'runserver', '127.0.0.1:8000', '--noreload']
     execute_from_command_line(sys.argv)
 
-# 2. Fonction pour démarrer la fenêtre d'application (sans navigateur)
 def start_webview():
-    time.sleep(3) # On attend 3 secondes que Django chauffe
-    # Crée la fenêtre de l'application
-    webview.create_window('Gestion École', 'http://127.0.0.1:8000', width=1200, height=800)
-    webview.start()
+    time.sleep(3) # On attend que Django démarre
+    
+    # Chemin ABSOLU blindé vers ton icône
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    icon_path = os.path.join(base_dir, 'static', 'images', 'logo.ico')
+    
+    webview.create_window(
+        title='HIMI Business School - Espace Numérique', 
+        url='http://127.0.0.1:8000', 
+        width=1280, 
+        height=850,
+        min_size=(1024, 768),
+        confirm_close=True
+    )
+    
+    webview.start(icon=icon_path)
 
 if __name__ == '__main__':
-    # Lance le serveur local
+    # Lance Django en tâche de fond (il se coupera tout seul en fermant la fenêtre)
     t = threading.Thread(target=run_django)
     t.daemon = True
     t.start()
 
-    # Ouvre l'interface graphique native
+    # Ouvre la belle fenêtre
     start_webview()

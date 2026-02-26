@@ -1,44 +1,203 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    /* --- NETTOYAGE GLOBAL --- */
+    /* On supprime les marges par défaut qui peuvent décaler le centrage */
+    body, html { overflow-x: hidden; }
 
-<h4 class="mb-4" style="color: var(--marine-blue); font-weight: 700;">Dernières actualités</h4>
-
-<div class="d-flex flex-column gap-3">
-    {% for actualite in actualites %}
+    /* On cache le panneau gauche */
+    .left-panel { display: none !important; }
     
-    <div class="card border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
-        <div class="card-body p-4">
-            
-            <div class="d-flex align-items-center mb-3">
-                <div class="d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background-color: var(--marine-blue); color: white; border-radius: 50%; font-weight: bold; font-size: 1.2rem;">
-                    H
+    /* Le panneau de droite doit prendre 100% du viewport pour pouvoir centrer son contenu */
+    .right-panel { 
+        flex: 0 0 100% !important; 
+        max-width: 100% !important; 
+        padding: 40px 0 !important; 
+        background-color: #e0f2fe;
+        display: block !important;
+    }
+
+    /* --- CONTENEUR PRINCIPAL (98% pour l'effet large, centré) --- */
+    .dashboard-container {
+        /* Pour un effet "Plein Écran" propre, utilise entre 95% et 98% */
+        /* Si tu mets plus de 100%, ça dépassera de l'écran et ne sera plus centré */
+        width: 98% !important; 
+        
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 1800px; /* Sécurité pour les écrans géants */
+    }
+    
+    /* --- BARRE DE BIENVENUE : Largeur réduite et centrée --- */
+    .welcome-card {
+        background: linear-gradient(135deg, var(--marine-blue, #003366) 0%, #00509e 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 30px;
+        
+        /* C'est ici qu'on diminue sa largeur par rapport au reste */
+        width: 98% !important; /* Elle ne prend que 60% de la largeur du dashboard */
+        
+        margin: 0 auto 2rem auto !important; /* margin auto centre le bloc */
+        text-align: center;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    /* --- CARTES D'INFORMATION --- */
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        height: 100%;
+    }
+
+    .info-card-title {
+        color: #003366;
+        font-weight: 700;
+        font-size: 1.3rem;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* --- FIL D'ACTUALITÉS : Correction du débordement --- */
+    .annonce-full-width {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        overflow: hidden; /* Coupe tout ce qui dépasse (Screenshot 171037) */
+        display: flex;
+        width: 100%;
+        max-width: 100%;
+        transition: transform 0.2s;
+    }
+    
+    .annonce-full-width:hover { transform: translateY(-3px); }
+
+    .annonce-img-container {
+        flex: 0 0 30%; /* L'image prend 30% de la ligne */
+        min-height: 180px;
+        overflow: hidden;
+    }
+
+    .annonce-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .annonce-content {
+        flex: 1;
+        padding: 20px;
+        min-width: 0; /* Empêche le texte de "pousser" la carte (Screenshot 165640) */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .annonce-titre { 
+        font-weight: 700; 
+        color: #334155; 
+        margin: 5px 0; 
+        font-size: 1.3rem;
+        white-space: nowrap; 
+        overflow: hidden; 
+        text-overflow: ellipsis; /* Ajoute "..." si trop long */
+    }
+
+    /* --- STYLE DES NOTES --- */
+    .note-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px dashed #e2e8f0;
+    }
+    .note-badge {
+        background-color: #e6f4fc;
+        color: #003366;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+
+    @media (max-width: 992px) {
+        .dashboard-container { width: 95% !important; }
+        .welcome-card { max-width: 95%; }
+        .annonce-full-width { flex-direction: column; }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="welcome-card shadow-sm">
+        <h3 class="m-0 fw-bold">Bonjour, {{ request.user.first_name }} !</h3>
+        <p class="mt-2 mb-0 opacity-75">
+            Bienvenue sur ton espace HIMI !<br>
+            <strong>Classe : {{ profil.classe.nom }}</strong>
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="info-card">
+                <div class="info-card-title">
+                    <span>Mes Notes</span>
+                    <a href="{% url 'mon_bulletin' %}" class="btn btn-sm btn-outline-primary" style="border-radius: 20px;">Tout voir</a>
                 </div>
                 
-                <div>
-                    <h5 class="mb-1 fw-bold text-dark">{{ actualite.titre }}</h5>
-                    <p class="mb-0 text-muted" style="font-size: 0.85rem;">
-                        {{ actualite.date_publication|date:"d F Y" }}
-                    </p>
+                <div class="notes-list">
+                    {% for n in dernieres_notes %}
+                    <div class="note-item">
+                        <div class="fw-bold text-truncate" style="max-width: 70%;">{{ n.matiere.nom }}</div>
+                        <div class="note-badge">
+                            {% if n.moyenne is not None %}{{ n.moyenne }}{% else %}-{% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-3">Aucune note récente.</p>
+                    {% endfor %}
                 </div>
             </div>
+        </div>
 
-            <p class="card-text text-secondary mb-3" style="line-height: 1.6;">
-                {{ actualite.contenu|linebreaksbr }}
-            </p>
-
-            <a href="#" class="text-decoration-none fw-bold" style="color: var(--marine-blue); font-size: 0.9rem;">
-                Lire la suite ›
-            </a>
-
+        <div class="col-lg-8">
+            <div class="info-card">
+                <div class="info-card-title">
+                    📌 Fil d'actualités HIMI
+                </div>
+                
+                <div class="annonces-feed">
+                    {% for annonce in annonces %}
+                    <div class="annonce-full-width shadow-sm">
+                        {% if annonce.image %}
+                        <div class="annonce-img-container">
+                            <img src="{{ annonce.image.url }}" class="annonce-img" alt="Image">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="annonce-content">
+                            <div class="annonce-date small text-muted fw-bold text-uppercase">
+                                {{ annonce.date_publication|date:"d F Y" }}
+                            </div>
+                            <h4 class="annonce-titre">{{ annonce.titre }}</h4>
+                            <p class="text-muted mb-0 small">
+                                {{ annonce.contenu|truncatewords:30 }}
+                            </p>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-4">Aucune annonce pour le moment.</p>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
     </div>
-
-    {% empty %}
-    <div class="text-center py-5">
-        <p class="text-muted fst-italic">Aucune actualité à afficher.</p>
-    </div>
-    {% endfor %}
 </div>
-
 {% endblock %}

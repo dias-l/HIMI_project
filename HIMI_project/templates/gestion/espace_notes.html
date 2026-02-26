@@ -65,7 +65,6 @@
 <div class="container-fluid w-100">
     <h2 class="page-title">Espace Professeur - Gestion des Évaluations</h2>
 
-    {% if role == 'prof' %}
     <div class="row g-4">
         
         <div class="col-lg-3 col-xl-3">
@@ -77,7 +76,7 @@
                     <form method="post">
                         {% csrf_token %}
                         {{ form.as_p }}
-                        <button type="submit" class="btn-submit mt-2">Enregistrer la note</button>
+                        <button type="submit" class="btn-submit mt-2">Enregistrer</button>
                     </form>
                 </div>
             </div>
@@ -95,8 +94,9 @@
                                     <th>Date</th>
                                     <th>Étudiant</th>
                                     <th>Matière</th>
-                                    <th class="text-center">Note /20</th>
-                                    <th>Appréciation</th>
+                                    <th class="text-center">Test /12</th>
+                                    <th class="text-center">Examen /8</th>
+                                    <th class="text-center">Moyenne /20</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -105,16 +105,23 @@
                                     <td class="text-muted small">{{ n.date|date:"d/m/Y" }}</td>
                                     <td class="fw-bold" style="color: #334155;">{{ n.etudiant.user.first_name }} {{ n.etudiant.user.last_name }}</td>
                                     <td>{{ n.matiere.nom }}</td>
+                                    
+                                    <td class="text-center">{{ n.note_test|default_if_none:"-" }}</td>
+                                    <td class="text-center">{{ n.note_examen|default_if_none:"-" }}</td>
+                                    
                                     <td class="text-center">
-                                        <span class="badge-note {% if n.valeur >= 10 %}badge-success{% else %}badge-danger{% endif %}">
-                                            {{ n.valeur }}
-                                        </span>
+                                        {% if n.moyenne is not None %}
+                                            <span class="badge-note {% if n.moyenne >= 10 %}badge-success{% else %}badge-danger{% endif %}">
+                                                {{ n.moyenne }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
                                     </td>
-                                    <td class="small text-muted">{{ n.appreciation|default:"-" }}</td>
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center py-5">
+                                    <td colspan="6" class="text-center py-5">
                                         <div style="font-size: 3rem; opacity: 0.3;">📋</div>
                                         <p class="text-muted mt-3 mb-0">Vous n'avez pas encore saisi de notes.</p>
                                     </td>
@@ -129,7 +136,6 @@
         </div>
 
     </div>
-    {% endif %}
 
 </div>
 {% endblock %}

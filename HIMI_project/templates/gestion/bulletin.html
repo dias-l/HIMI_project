@@ -74,8 +74,8 @@
     .grade-value { font-weight: 800; font-size: 1.1rem; }
     
     /* Code couleur pour les notes */
-    .text-success-custom { color: #38a169; } /* Vert (>= 10) */
-    .text-danger-custom { color: #e53e3e; } /* Rouge (< 10) */
+    .text-success-custom { color: #166534; } /* Vert (>= 10) */
+    .text-danger-custom { color: #991b1b; } /* Rouge (< 10) */
     .text-waiting { color: #a0aec0; font-style: italic; }
 
     /* Bouton d'impression */
@@ -88,7 +88,7 @@
     }
     .btn-print:hover { background-color: #e2e8f0; }
 
-    /* Style spécifique pour l'impression (cache les boutons quand on imprime) */
+    /* Style spécifique pour l'impression */
     @media print {
         body { background-color: white !important; }
         .right-panel { padding: 0 !important; }
@@ -114,62 +114,48 @@
             <div class="student-class">Classe : {{ etudiant.classe.nom }}</div>
         </div>
 
-        <div class="text-center">
-            <div class="moyenne-badge">
-                {% if moyenne_generale %}
-                    Moyenne : {{ moyenne_generale.valeur }} / 20
-                {% else %}
-                    Moyenne : En cours...
-                {% endif %}
-            </div>
-        </div>
-
         <div class="card-body p-4 p-md-5">
             
-            {% if moyenne_generale.decision %}
-                <div class="alert alert-info text-center fw-bold mb-4" style="background-color: #e6f4fc; color: var(--marine-blue); border: none;">
-                    Décision du jury : {{ moyenne_generale.decision }}
-                </div>
-            {% endif %}
+
 
             <div class="table-responsive">
                 <table class="table table-custom table-hover">
                     <thead>
                         <tr>
-                            <th width="30%">Matière</th>
-                            <th width="15%" class="text-center">Coef.</th>
-                            <th width="15%" class="text-center">Note /20</th>
-                            <th width="40%">Appréciation du professeur</th>
+                            <th width="40%">Module</th>
+                            <th width="15%" class="text-center">Test /12</th>
+                            <th width="15%" class="text-center">Examen /8</th>
+                            <th width="15%" class="text-center">Moyenne /20</th>
+                            <th width="15%" class="text-center">Rattrapage</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for ligne in bulletin %}
+                        {% for n in notes %}
                         <tr>
-                            <td class="subject-name">{{ ligne.matiere }}</td>
-                            <td class="text-center">{{ ligne.coefficient }}</td>
+                            <td class="subject-name">{{ n.matiere.nom }}</td>
+                            
+                            <td class="text-center">{{ n.note_test|default_if_none:"-" }}</td>
+                            
+                            <td class="text-center">{{ n.note_examen|default_if_none:"-" }}</td>
                             
                             <td class="text-center grade-value">
-                                {% if ligne.note %}
-                                    <span class="{% if ligne.note >= 10 %}text-success-custom{% else %}text-danger-custom{% endif %}">
-                                        {{ ligne.note }}
+                                {% if n.moyenne is not None %}
+                                    <span class="{% if n.moyenne >= 10 %}text-success-custom{% else %}text-danger-custom{% endif %}">
+                                        {{ n.moyenne }}
                                     </span>
                                 {% else %}
                                     <span class="text-waiting">-</span>
                                 {% endif %}
                             </td>
                             
-                            <td>
-                                {% if ligne.note %}
-                                    {{ ligne.appreciation }}
-                                {% else %}
-                                    <span class="text-waiting">Note non saisie</span>
-                                {% endif %}
+                            <td class="text-center" style="color: #64748b;">
+                                {{ n.note_rattrapage|default_if_none:"-" }}
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center py-4 text-muted fst-italic">
-                                Aucun cours n'est assigné pour le moment.
+                            <td colspan="5" class="text-center py-4 text-muted fst-italic">
+                                Aucune note n'a encore été saisie pour ce semestre.
                             </td>
                         </tr>
                         {% endfor %}

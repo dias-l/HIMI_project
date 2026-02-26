@@ -7,7 +7,7 @@ from .models import Note, SupportCours, Etudiant
 class NoteForm(forms.ModelForm):
     class Meta:
         model = Note
-        fields = ['etudiant', 'matiere', 'valeur', 'coefficient', 'appreciation']
+        fields = ['etudiant', 'matiere', 'note_test', 'note_examen', 'note_rattrapage', 'appreciation']
         widgets = {
             'etudiant': forms.Select(attrs={'class': 'form-select'}),
             'matiere': forms.Select(attrs={'class': 'form-select'}),

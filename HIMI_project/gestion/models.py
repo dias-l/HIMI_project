@@ -28,11 +28,32 @@ class Professeur(models.Model):
 class Note(models.Model):
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
     matiere = models.ForeignKey(Matiere, on_delete=models.CASCADE)
-    professeur = models.ForeignKey(Professeur, on_delete=models.SET_NULL, null=True)
-    valeur = models.DecimalField(max_digits=5, decimal_places=2)
-    coefficient = models.IntegerField(default=1)
-    appreciation = models.TextField(blank=True, null=True)
+    professeur = models.ForeignKey(Professeur, on_delete=models.CASCADE)
+    
+    # Le nouveau système HIMI
+    note_test = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Test /12")
+    note_examen = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Examen /8")
+    note_rattrapage = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Rattrapage /20")
+    
+    appreciation = models.TextField(null=True, blank=True)
     date = models.DateField(auto_now_add=True)
+
+    # Cette fonction calcule la moyenne automatiquement !
+    @property
+    def moyenne(self):
+        if self.note_rattrapage is not None:
+            return self.note_rattrapage  # Le rattrapage écrase la note
+            
+        test = self.note_test if self.note_test else 0
+        examen = self.note_examen if self.note_examen else 0
+        
+        # S'il y a au moins une note saisie, on fait l'addition
+        if self.note_test is not None or self.note_examen is not None:
+            return test + examen
+        return None
+
+    def __str__(self):
+        return f"{self.etudiant} - {self.matiere}"
 
 class Moyenne(models.Model):
     etudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE)
