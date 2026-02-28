@@ -1,3 +1,4 @@
+from .models import Note, Moyenne
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .models import *
@@ -85,22 +86,15 @@ def mon_bulletin(request):
         etudiant = user.profil_etudiant
         notes = Note.objects.filter(etudiant=etudiant).order_by('matiere__nom')
         
-        # Calcul de la moyenne générale du semestre
-        total_points = 0
-        nombre_notes = 0
-        
-        for n in notes:
-            if n.moyenne is not None:
-                total_points += float(n.moyenne)
-                nombre_notes += 1
-                
-        moyenne_generale = round(total_points / nombre_notes, 2) if nombre_notes > 0 else None
+        # On va chercher la moyenne officielle saisie par l'admin.
+        # .first() permet de prendre la dernière ou la seule moyenne publiée pour cet étudiant.
+        moyenne_officielle = Moyenne.objects.filter(etudiant=etudiant, est_publie=True).order_by('-id').first()
         
         context = {
             'role': 'etudiant',
             'etudiant': etudiant,
             'notes': notes,
-            'moyenne_generale': moyenne_generale
+            'moyenne_semestre': moyenne_officielle # On envoie l'objet entier au template
         }
         return render(request, 'gestion/bulletin.html', context)
         

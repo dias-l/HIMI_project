@@ -91,26 +91,40 @@
 
     <div class="wa-chat-area">
         
-        <div class="wa-chat-history" id="chatBox">
+<div class="wa-chat-history" id="chatBox">
             
-            <div class="text-center mb-4 mt-2">
-                <span class="badge" style="background-color: rgba(255,255,255,0.1); color: white; font-weight: 500; padding: 8px 15px; border-radius: 15px;">
-                    Aujourd'hui
-                </span>
-            </div>
+            {% now "Y-m-d" as today_str %}
 
             {% for msg in messages %}
+            
+                {% ifchanged msg.date_envoi.date %}
+                <div class="text-center mb-4 mt-4">
+                    <span class="badge shadow-sm" style="background-color: rgba(255,255,255,0.15); color: white; font-weight: 500; padding: 6px 15px; border-radius: 12px; font-size: 0.8rem;">
+                        {% if msg.date_envoi|date:"Y-m-d" == today_str %}
+                            Aujourd'hui
+                        {% else %}
+                            {{ msg.date_envoi|date:"d F Y" }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endifchanged %}
+
                 {% if msg.expediteur == request.user %}
                     <div class="wa-bubble sent">
                         {{ msg.contenu|linebreaksbr }}
-                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
+                        <span class="wa-time" style="font-size: 0.65rem; color: #555; text-align: right; margin-top: 3px; display: block;">
+                            {{ msg.date_envoi|date:"H:i" }}
+                        </span>
                     </div>
                 {% else %}
                     <div class="wa-bubble received">
                         {{ msg.contenu|linebreaksbr }}
-                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
+                        <span class="wa-time" style="font-size: 0.65rem; color: #888; text-align: right; margin-top: 3px; display: block;">
+                            {{ msg.date_envoi|date:"H:i" }}
+                        </span>
                     </div>
                 {% endif %}
+                
             {% empty %}
                 <div class="text-center text-white mt-4" style="opacity: 0.6;">
                     Envoyez un message pour commencer.

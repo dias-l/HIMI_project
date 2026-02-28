@@ -36,7 +36,7 @@ class Note(models.Model):
     note_rattrapage = models.DecimalField(max_digits=4, decimal_places=2, null=True, blank=True, verbose_name="Rattrapage /20")
     
     appreciation = models.TextField(null=True, blank=True)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
 
     # Cette fonction calcule la moyenne automatiquement !
     @property

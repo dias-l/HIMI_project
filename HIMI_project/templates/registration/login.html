@@ -2,9 +2,9 @@
 
 {% block content %}
 <style>
-    /* 1. ON CACHE LE PANNEAU GAUCHE ET LE BOUTON DE LA NAVBAR */
+    /* 1. ON CACHE LE PANNEAU GAUCHE ET LA NAVBAR COMPLÈTE */
     .left-panel { display: none !important; }
-    .nav-link.btn-primary, .navbar .btn { display: none !important; } /* Cache le bouton Connexion en haut */
+    .navbar, nav, header { display: none !important; } /* <-- Cache complètement la barre de navigation */
     
     /* 2. CENTRE TOTAL ET FOND UNIFIÉ */
     .right-panel { 
@@ -19,7 +19,7 @@
         position: fixed; /* Bloque le fond pour éviter les fuites blanches */
         top: 0;
         left: 0;
-        z-index: 999;
+        z-index: 9999; /* Sécurité augmentée pour passer par-dessus tout le reste */
     }
 
     /* On force le container de base à ne pas limiter la largeur */
@@ -78,7 +78,7 @@
         transition: 0.3s;
     }
     .custom-login-form input:focus {
-        border-color: var(--light-blue);
+        border-color: var(--light-blue, #00509e);
         background-color: white;
         outline: none;
     }

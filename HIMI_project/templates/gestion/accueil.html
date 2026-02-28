@@ -2,49 +2,52 @@
 
 {% block content %}
 <style>
-    /* --- NETTOYAGE GLOBAL --- */
-    /* On supprime les marges par défaut qui peuvent décaler le centrage */
-    body, html { overflow-x: hidden; }
-
-    /* On cache le panneau gauche */
+    /* --- POINT 2 : Plein écran 100% et suppression du panneau gauche --- */
+    body, html { overflow-x: hidden; } /* Évite la barre de défilement horizontale */
     .left-panel { display: none !important; }
     
-    /* Le panneau de droite doit prendre 100% du viewport pour pouvoir centrer son contenu */
     .right-panel { 
         flex: 0 0 100% !important; 
         max-width: 100% !important; 
-        padding: 40px 0 !important; 
-        background-color: #e0f2fe;
+        padding: 40px 0 !important; /* On a mis 0 ici pour coller aux bords horizontaux */
+        background-color: #e0f2fe !important; 
         display: block !important;
     }
 
-    /* --- CONTENEUR PRINCIPAL (98% pour l'effet large, centré) --- */
+    /* Le conteneur prend maintenant TOUTE la largeur (100%) */
     .dashboard-container {
-        /* Pour un effet "Plein Écran" propre, utilise entre 95% et 98% */
-        /* Si tu mets plus de 100%, ça dépassera de l'écran et ne sera plus centré */
-        width: 98% !important; 
-        
-        margin-left: auto !important;
-        margin-right: auto !important;
-        max-width: 1800px; /* Sécurité pour les écrans géants */
+        width: 100vw !important;
+        position: relative;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw !important;
+        margin-right: -50vw !important;
+        padding: 0 30px !important; /* Petit espace pour ne pas que le texte touche le bord de l'écran */
+    }
+    .dashboard-title { 
+        color: var(--marine-blue, #003366); 
+        font-weight: 800; 
+        margin-bottom: 2rem; 
+        text-align: center;
     }
     
-    /* --- BARRE DE BIENVENUE : Largeur réduite et centrée --- */
+    /* La barre de bienvenue reste un peu plus courte et centrée pour l'élégance */
     .welcome-card {
         background: linear-gradient(135deg, var(--marine-blue, #003366) 0%, #00509e 100%);
         color: white;
-        border-radius: 15px;
-        padding: 30px;
-        
-        /* C'est ici qu'on diminue sa largeur par rapport au reste */
-        width: 98% !important; /* Elle ne prend que 60% de la largeur du dashboard */
-        
-        margin: 0 auto 2rem auto !important; /* margin auto centre le bloc */
-        text-align: center;
+        border-radius: 15px; /* Tu peux mettre 0px si tu veux des angles carrés collés aux bords */
+        padding: 40px 30px;
+        border: none;
         box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        
+        /* C'est ici que la magie opère : on force la pleine largeur */
+        margin: 0 0 2.5rem 0 !important; 
+        width: 100% !important; 
+        max-width: 100% !important; 
+        
+        text-align: center; /* Garde le texte bien au centre de cet immense bloc */
     }
 
-    /* --- CARTES D'INFORMATION --- */
     .info-card {
         background: white;
         border-radius: 15px;
@@ -55,7 +58,7 @@
     }
 
     .info-card-title {
-        color: #003366;
+        color: var(--marine-blue, #003366);
         font-weight: 700;
         font-size: 1.3rem;
         border-bottom: 2px solid #f1f5f9;
@@ -66,13 +69,13 @@
         align-items: center;
     }
 
-    /* --- FIL D'ACTUALITÉS : Correction du débordement --- */
+    /* Fil d'actualités */
     .annonce-full-width {
         background-color: #ffffff;
         border: 1px solid #e2e8f0;
         margin-bottom: 20px;
         border-radius: 12px;
-        overflow: hidden; /* Coupe tout ce qui dépasse (Screenshot 171037) */
+        overflow: hidden; 
         display: flex;
         width: 100%;
         max-width: 100%;
@@ -82,7 +85,7 @@
     .annonce-full-width:hover { transform: translateY(-3px); }
 
     .annonce-img-container {
-        flex: 0 0 30%; /* L'image prend 30% de la ligne */
+        flex: 0 0 30%; 
         min-height: 180px;
         overflow: hidden;
     }
@@ -96,7 +99,7 @@
     .annonce-content {
         flex: 1;
         padding: 20px;
-        min-width: 0; /* Empêche le texte de "pousser" la carte (Screenshot 165640) */
+        min-width: 0; 
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -109,10 +112,10 @@
         font-size: 1.3rem;
         white-space: nowrap; 
         overflow: hidden; 
-        text-overflow: ellipsis; /* Ajoute "..." si trop long */
+        text-overflow: ellipsis; 
     }
 
-    /* --- STYLE DES NOTES --- */
+    /* Notes */
     .note-item {
         display: flex;
         justify-content: space-between;
@@ -121,30 +124,35 @@
         border-bottom: 1px dashed #e2e8f0;
     }
     .note-badge {
-        background-color: #e6f4fc;
-        color: #003366;
+        background-color: #e0f2fe;
+        color: var(--marine-blue, #003366);
         padding: 6px 12px;
         border-radius: 8px;
         font-weight: bold;
     }
 
     @media (max-width: 992px) {
-        .dashboard-container { width: 95% !important; }
-        .welcome-card { max-width: 95%; }
         .annonce-full-width { flex-direction: column; }
+        .annonce-img-container { flex: 0 0 200px; }
     }
 </style>
 
 <div class="dashboard-container">
+    <h2 class="dashboard-title">Mon Tableau de Bord</h2>
+
     <div class="welcome-card shadow-sm">
-        <h3 class="m-0 fw-bold">Bonjour, {{ request.user.first_name }} !</h3>
+        <h3 class="m-0 fw-bold">Bonjour {{ request.user.first_name }}, bienvenue sur ton espace HIMI !</h3>
         <p class="mt-2 mb-0 opacity-75">
-            Bienvenue sur ton espace HIMI !<br>
-            <strong>Classe : {{ profil.classe.nom }}</strong>
+            Heureux de te revoir. Retrouve ici tes dernières informations.
+            {% if role == 'etudiant' %}
+                <br><strong>Classe : {{ profil.classe.nom }}</strong>
+            {% endif %}
         </p>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mx-0">
+        
+        {% if role == 'etudiant' %}
         <div class="col-lg-4">
             <div class="info-card">
                 <div class="info-card-title">
@@ -155,10 +163,17 @@
                 <div class="notes-list">
                     {% for n in dernieres_notes %}
                     <div class="note-item">
-                        <div class="fw-bold text-truncate" style="max-width: 70%;">{{ n.matiere.nom }}</div>
-                        <div class="note-badge">
-                            {% if n.moyenne is not None %}{{ n.moyenne }}{% else %}-{% endif %}
-                        </div>
+                        <div style="max-width: 70%;">
+                                <div class="fw-bold text-truncate">{{ n.matiere.nom }}</div>
+                                
+                                <div class="text-muted" style="font-size: 0.75rem; margin-top: 3px;">
+                                    Saisi le {{ n.date }}
+                                </div>
+                                
+                            </div>
+                            <div class="note-badge">
+                                {% if n.moyenne is not None %}{{ n.moyenne }}{% else %}-{% endif %}
+                            </div>
                     </div>
                     {% empty %}
                     <p class="text-muted text-center py-3">Aucune note récente.</p>
@@ -166,8 +181,9 @@
                 </div>
             </div>
         </div>
+        {% endif %}
 
-        <div class="col-lg-8">
+        <div class="{% if role == 'etudiant' %}col-lg-8{% else %}col-lg-12{% endif %}">
             <div class="info-card">
                 <div class="info-card-title">
                     📌 Fil d'actualités HIMI
@@ -188,7 +204,7 @@
                             </div>
                             <h4 class="annonce-titre">{{ annonce.titre }}</h4>
                             <p class="text-muted mb-0 small">
-                                {{ annonce.contenu|truncatewords:30 }}
+                                {{ annonce.contenu|truncatewords:40 }}
                             </p>
                         </div>
                     </div>
