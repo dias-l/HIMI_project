@@ -1,5 +1,5 @@
 @echo off
-TITLE Application Gestion Ecole
+TITLE Application HIMI
 
 :: 1. On se place dans le dossier
 cd /d "%~dp0"
@@ -10,8 +10,8 @@ call env\Scripts\activate
 :: 3. On rentre dans le sous-dossier
 cd HIMI_project
 
-:: 4. On lance l'application en mode "Réduit" (invisible) grâce à "start /min"
-start /min python desktop_run.py
+:: 4. On lance l'application en mode VRAIE APP (pythonw)
+start pythonw desktop_run.py
 
-:: 5. On ferme la première fenêtre noire automatiquement
+:: 5. On ferme la fenêtre de lancement
 exit

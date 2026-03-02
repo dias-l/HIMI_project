@@ -11,4 +11,5 @@ urlpatterns = [
     path('messagerie/', views.messagerie, name='messagerie'),
     path('messagerie/nouveau/', views.nouveau_message, name='nouveau_message'),
     path('messagerie/chat/<int:user_id>/', views.discussion, name='discussion'),
+    path('infos-himi/', views.infos_etablissement, name='infos_himi'),
 ]

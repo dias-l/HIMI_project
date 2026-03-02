@@ -10,28 +10,89 @@ from .forms import MessageForm
 @login_required
 def accueil(request):
     user = request.user
-    context = {}
+    notifications = []
     
-    # 1. Le bloc "Annonces Internes" (On garde ton modèle Actualite !)
-    # On prend seulement les 4 dernières annonces pour ne pas surcharger la page
-    context['annonces'] = Actualite.objects.all().order_by('-date_publication')[:4]
+    # 1. ACTUALITÉS (Pour tout le monde)
+    annonces = Actualite.objects.order_by('-date_publication')[:5]
     
-    # 2. Le Tableau de Bord personnalisé
     if hasattr(user, 'profil_etudiant'):
-        context['role'] = 'etudiant'
         etudiant = user.profil_etudiant
-        context['profil'] = etudiant
-        # Les 3 dernières notes de l'étudiant
-        context['dernieres_notes'] = Note.objects.filter(etudiant=etudiant).order_by('-date')[:3]
+        classe = etudiant.classe
+        
+        # --- NOTIFICATIONS : PRIORITÉ 1 (MESSAGES NON LUS) ---
+        messages_non_lus = Message.objects.filter(destinataire=user, lu=False).order_by('-date_envoi')[:3]
+        for msg in messages_non_lus:
+            notifications.append({
+                'priorite': 1,
+                'icone': '💬',
+                'titre': f"Nouveau message de {msg.expediteur.first_name}",
+                'texte': msg.contenu[:30] + '...',
+                'date': msg.date_envoi,
+                'lien': 'messagerie'
+            })
+
+        # --- NOTIFICATIONS : PRIORITÉ 2 (PLANNING MODIFIÉ) ---
+        # On prend les 2 dernières modifications de la classe
+        plannings = CoursEmploiDuTemps.objects.filter(classe=classe).order_by('-date_modification')[:2]
+        for plan in plannings:
+            notifications.append({
+                'priorite': 2,
+                'icone': '📅',
+                'titre': f"Planning modifié : {plan.matiere.nom}",
+                'texte': f"{plan.jour} ({plan.heure_debut.strftime('%H:%M')})",
+                'date': plan.date_modification,
+                'lien': 'emploi_du_temps'
+            })
+
+        # --- NOTIFICATIONS : PRIORITÉ 3 (NOUVEAUX COURS) ---
+        cours = SupportCours.objects.filter(classe=classe).order_by('-date_ajout')[:3]
+        for c in cours:
+            notifications.append({
+                'priorite': 3,
+                'icone': '📚',
+                'titre': f"Nouveau cours : {c.matiere.nom}",
+                'texte': c.titre,
+                'date': c.date_ajout,
+                'lien': 'liste_cours_pdf'
+            })
+
+        # --- NOTIFICATIONS : PRIORITÉ 4 (NOUVELLES NOTES) ---
+        notes = Note.objects.filter(etudiant=etudiant).order_by('-date')[:3]
+        for n in notes:
+            moyenne_str = f"{n.moyenne}/20" if n.moyenne is not None else "Saisie"
+            notifications.append({
+                'priorite': 4,
+                'icone': '🎓',
+                'titre': f"Nouvelle note : {n.matiere.nom}",
+                'texte': moyenne_str,
+                'date': n.date,
+                'lien': 'mon_bulletin'
+            })
+
+        # --- TRI MAGIQUE ---
+        # On trie d'abord par priorité (1, puis 2, puis 3...), et ensuite par date (du plus récent au plus ancien)
+        notifications.sort(key=lambda x: (x['priorite'], -x['date'].timestamp()))
+        
+        # On ne garde que les 6 premières notifications pour ne pas surcharger l'écran
+        notifications = notifications[:6]
+        
+        context = {
+            'role': 'etudiant',
+            'profil': etudiant,
+            'notifications': notifications,
+            'annonces': annonces
+        }
+        return render(request, 'gestion/accueil.html', context)
         
     elif hasattr(user, 'profil_professeur'):
-        context['role'] = 'professeur'
-        prof = user.profil_professeur
-        context['profil'] = prof
-        # Les 3 dernières notes saisies par le prof
-        context['dernieres_notes'] = Note.objects.filter(professeur=prof).order_by('-date')[:3]
-        
-    return render(request, 'gestion/accueil.html', context)
+        # Logique professeur (on garde la tienne)
+        professeur = user.profil_professeur
+        context = {
+            'role': 'professeur',
+            'profil': professeur,
+            'annonces': annonces
+        }
+        return render(request, 'gestion/accueil.html', context)
 
 @login_required
 def espace_notes(request):
@@ -218,3 +279,7 @@ def discussion(request, user_id):
         'messages': historique,
         'contacts': contacts 
     })
+
+@login_required
+def infos_etablissement(request):
+    return render(request, 'gestion/infos_himi.html')

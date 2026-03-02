@@ -72,6 +72,7 @@ class CoursEmploiDuTemps(models.Model):
     heure_debut = models.TimeField()
     heure_fin = models.TimeField()
     salle = models.CharField(max_length=20, blank=True)
+    date_modification = models.DateTimeField(auto_now=True)
 
 class SupportCours(models.Model):
     titre = models.CharField(max_length=200)
