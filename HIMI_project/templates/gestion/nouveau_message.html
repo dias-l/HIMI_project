@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* --- LA MAGIE POUR CACHER LE PANNEAU GAUCHE --- */
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 40px !important; }
+
+    /* Centrage et taille de la carte */
+    .new-msg-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding-top: 2rem;
+    }
+
+    /* Style magique pour embellir le formulaire Django par défaut */
+    .custom-form p { margin-bottom: 1.5rem; }
+    .custom-form label {
+        font-weight: 600;
+        color: var(--marine-blue);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    .custom-form input, 
+    .custom-form select, 
+    .custom-form textarea {
+        display: block;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        color: #212529;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .custom-form input:focus, 
+    .custom-form select:focus, 
+    .custom-form textarea:focus {
+        border-color: var(--light-blue);
+        background-color: #fff;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgba(29, 177, 232, 0.25);
+    }
+    .custom-form textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+</style>
+
+<div class="new-msg-container">
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        
+        <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 fw-bold" style="color: var(--marine-blue);">Nouveau Message</h4>
+            <a href="{% url 'messagerie' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                Retour
+            </a>
+        </div>
+
+        <div class="card-body p-4 p-md-5 custom-form">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-flex justify-content-end gap-3 mt-4 pt-3 border-top">
+                    <a href="{% url 'messagerie' %}" class="btn text-muted fw-bold">Annuler</a>
+                    <button type="submit" class="btn fw-bold px-4 shadow-sm" style="background-color: var(--marine-blue); color: white; border-radius: 8px;">
+                        Envoyer le message
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

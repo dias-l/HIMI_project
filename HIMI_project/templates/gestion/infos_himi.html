@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* On cache le panneau gauche et on centre */
+    .left-panel { display: none !important; }
+    .right-panel { flex: 0 0 100% !important; max-width: 100% !important; background-color: #e0f2fe !important; padding: 40px 20px !important; }
+    .infos-container { max-width: 800px; margin: 0 auto; }
+    
+    .infos-card {
+        background: white;
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: none;
+    }
+
+    .infos-header {
+        text-align: center;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+
+    .infos-title {
+        color: var(--marine-blue, #003366);
+        font-weight: 800;
+        font-size: 2rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        color: #334155;
+    }
+
+    .info-icon {
+        background-color: #e0f2fe;
+        color: var(--marine-blue, #003366);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 20px;
+    }
+</style>
+
+<div class="infos-container">
+    <div class="infos-card">
+        
+        <div class="infos-header">
+            <h1 class="infos-title">HIMI Business School</h1>
+            <p class="text-muted mb-0">L'excellence au service de votre avenir</p>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon">📍</div>
+            <div>
+                <strong>Adresse :</strong><br>
+                Zhun Sud Quartier B N°3, Nouvelle ville Tizi-Ouzou
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon">📞</div>
+            <div>
+                <strong>Téléphone :</strong><br>
+                026 18 27 27
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon">✉️</div>
+            <div>
+                <strong>Email :</strong><br>
+                contact@insim-edu.com
+            </div>
+        </div>
+
+        <div class="info-item">
+            <div class="info-icon">🕒</div>
+            <div>
+                <strong>Horaires d'ouverture :</strong><br>
+                Du Samedi au Jeudi : 08h30 - 16h30
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{% url 'accueil' %}" class="btn" style="background-color: var(--marine-blue, #003366); color: white; padding: 10px 30px; border-radius: 8px; font-weight: bold;">
+                Retour à l'accueil
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
