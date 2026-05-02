@@ -1,5 +1,5 @@
 from .models import Note, Moyenne
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import NoteForm, CoursForm
@@ -94,6 +94,15 @@ def accueil(request):
         }
         return render(request, 'gestion/accueil.html', context)
 
+    else:
+        # BUG 1 CORRIGÉ : Admin Django sans profil étudiant/professeur
+        # On affiche une page d'accueil neutre sans crash
+        context = {
+            'role': 'admin',
+            'annonces': annonces
+        }
+        return render(request, 'gestion/accueil.html', context)
+
 @login_required
 def espace_notes(request):
     user = request.user
@@ -103,7 +112,7 @@ def espace_notes(request):
         prof = user.profil_professeur
         
         if request.method == 'POST':
-            form = NoteForm(request.POST)
+            form = NoteForm(request.POST, professeur=prof)
             
             if form.is_valid():
                 # On récupère l'étudiant et la matière PROPREMENT via Django
@@ -130,7 +139,7 @@ def espace_notes(request):
                 # On recharge la page pour vider le formulaire
                 return redirect('espace_notes')
         else:
-            form = NoteForm()
+            form = NoteForm(professeur=prof)
             
         context['form'] = form
         context['notes'] = Note.objects.filter(professeur=prof).order_by('-date')
@@ -243,7 +252,7 @@ def nouveau_message(request):
 
 @login_required
 def discussion(request, user_id):
-    contact = User.objects.get(id=user_id)
+    contact = get_object_or_404(User, id=user_id)
     
     # Marquer les messages reçus comme "lus"
     Message.objects.filter(expediteur=contact, destinataire=request.user, lu=False).update(lu=True)

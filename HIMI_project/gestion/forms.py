@@ -2,6 +2,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Message
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import Note, SupportCours, Etudiant
 
 class NoteForm(forms.ModelForm):
@@ -11,8 +12,9 @@ class NoteForm(forms.ModelForm):
         widgets = {
             'etudiant': forms.Select(attrs={'class': 'form-select'}),
             'matiere': forms.Select(attrs={'class': 'form-select'}),
-            'valeur': forms.NumberInput(attrs={'class': 'form-control'}),
-            'coefficient': forms.NumberInput(attrs={'class': 'form-control'}),
+            'note_test': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.25', 'min': '0', 'max': '12'}),
+            'note_examen': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.25', 'min': '0', 'max': '8'}),
+            'note_rattrapage': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.25', 'min': '0', 'max': '20'}),
             'appreciation': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
@@ -22,6 +24,25 @@ class NoteForm(forms.ModelForm):
         if professeur:
             self.fields['etudiant'].queryset = Etudiant.objects.filter(classe__in=professeur.classes.all())
             self.fields['matiere'].queryset = professeur.matieres.all()
+
+    # Bug 7 corrigé — Validation des plages de notes
+    def clean_note_test(self):
+        val = self.cleaned_data.get('note_test')
+        if val is not None and not (0 <= val <= 12):
+            raise ValidationError("La note de test doit être comprise entre 0 et 12.")
+        return val
+
+    def clean_note_examen(self):
+        val = self.cleaned_data.get('note_examen')
+        if val is not None and not (0 <= val <= 8):
+            raise ValidationError("La note d'examen doit être comprise entre 0 et 8.")
+        return val
+
+    def clean_note_rattrapage(self):
+        val = self.cleaned_data.get('note_rattrapage')
+        if val is not None and not (0 <= val <= 20):
+            raise ValidationError("La note de rattrapage doit être comprise entre 0 et 20.")
+        return val
 
 class CoursForm(forms.ModelForm):
     class Meta:
