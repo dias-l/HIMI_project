@@ -1,0 +1,400 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<style>
+.cl-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.cl-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #004b79;
+    margin: 0;
+}
+.cl-subtitle {
+    font-size: 13px;
+    color: #64748b;
+    margin: 4px 0 0;
+    font-weight: 400;
+}
+.btn-add {
+    background: #004b79;
+    color: white !important;
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-size: 13.5px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    border: none;
+    cursor: pointer;
+}
+.btn-add:hover { background: #003358 !important; color: white !important; }
+.btn-add svg { width: 16px; height: 16px; }
+
+/* Search bar */
+.himi-search {
+    background: white;
+    border: 1.5px solid #e2ecf5;
+    border-radius: 12px;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 8px rgba(0,75,121,0.04);
+    transition: border-color 0.2s;
+}
+.himi-search:focus-within { border-color: #1db1e8; }
+.himi-search svg { width: 18px; height: 18px; color: #94a3b8; flex-shrink: 0; }
+.himi-search input[type="text"] {
+    border: none !important;
+    outline: none !important;
+    flex: 1 !important;
+    font-size: 14px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    color: #1a2332 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+}
+.himi-search input[type="submit"] {
+    background: #004b79 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 7px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-family: 'DM Sans', sans-serif !important;
+    flex-shrink: 0 !important;
+}
+.himi-search input[type="submit"]:hover { background: #003358 !important; }
+
+/* Layout avec filtre */
+.cl-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+.cl-main { flex: 1; min-width: 0; }
+.cl-filter {
+    width: 220px;
+    flex-shrink: 0;
+}
+
+/* Tableau */
+.himi-table-wrap {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2ecf5;
+    box-shadow: 0 2px 12px rgba(0,75,121,0.05);
+    overflow: hidden;
+}
+
+.himi-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.himi-table thead tr {
+    background: #004b79;
+}
+.himi-table thead th {
+    color: white !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    padding: 14px 16px !important;
+    text-align: left !important;
+    letter-spacing: 0.4px !important;
+    text-transform: uppercase !important;
+    border: none !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+}
+.himi-table thead th a,
+.himi-table thead th a:link,
+.himi-table thead th a:visited { color: white !important; text-decoration: none !important; }
+.himi-table thead th.sorted { background: #003358 !important; }
+.himi-table thead th .text::after { color: rgba(255,255,255,0.6) !important; }
+
+.himi-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.12s;
+}
+.himi-table tbody tr:last-child { border-bottom: none; }
+.himi-table tbody tr:hover { background: #e6f4fc; }
+.himi-table tbody tr.selected { background: #dbeafe; }
+
+.himi-table tbody td {
+    padding: 12px 16px !important;
+    font-size: 13.5px !important;
+    color: #1a2332 !important;
+    border: none !important;
+    vertical-align: middle !important;
+}
+.himi-table tbody td a,
+.himi-table tbody td a:link,
+.himi-table tbody td a:visited {
+    color: #004b79 !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+}
+.himi-table tbody td a:hover { color: #1db1e8 !important; }
+
+/* Actions bar */
+.himi-actions {
+    background: #fafcff;
+    border-bottom: 1px solid #e2ecf5;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.himi-actions select {
+    border: 1.5px solid #e2ecf5 !important;
+    border-radius: 8px !important;
+    padding: 6px 10px !important;
+    font-size: 13px !important;
+    font-family: 'DM Sans', sans-serif !important;
+    outline: none !important;
+    background: white !important;
+    max-width: none !important;
+    width: auto !important;
+}
+.himi-actions button, .himi-actions input[type="submit"] {
+    background: #004b79 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 7px 16px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+.himi-actions label { font-size: 13px; color: #64748b; font-weight: 500; }
+.himi-actions span.action-counter { font-size: 12px; color: #64748b; }
+
+/* Pagination */
+.himi-pagination {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-top: 1px solid #e2ecf5;
+    background: #fafcff;
+    border-radius: 0 0 16px 16px;
+    font-size: 13px;
+    flex-wrap: wrap;
+}
+.himi-pagination a, .himi-pagination a:link, .himi-pagination a:visited {
+    color: #004b79 !important;
+    text-decoration: none !important;
+    padding: 5px 11px !important;
+    border-radius: 7px !important;
+    font-weight: 500 !important;
+    border: 1px solid #e2ecf5 !important;
+    transition: all 0.15s !important;
+}
+.himi-pagination a:hover { background: #e6f4fc !important; border-color: #1db1e8 !important; }
+.himi-pagination .this-page {
+    background: #004b79;
+    color: white;
+    padding: 5px 11px;
+    border-radius: 7px;
+    font-weight: 600;
+}
+.himi-pagination .paginator { color: #64748b; }
+
+/* Filtre sidebar */
+.himi-filter {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2ecf5;
+    box-shadow: 0 2px 10px rgba(0,75,121,0.04);
+    overflow: hidden;
+}
+.himi-filter h2 {
+    background: #004b79;
+    color: white;
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 18px;
+    margin: 0;
+}
+.himi-filter h3 {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    padding: 14px 18px 6px;
+    margin: 0;
+}
+.himi-filter ul { list-style: none; padding: 0; margin: 0; }
+.himi-filter ul li { border-bottom: 1px solid #f1f5f9; }
+.himi-filter ul li:last-child { border-bottom: none; }
+.himi-filter ul li a,
+.himi-filter ul li a:link,
+.himi-filter ul li a:visited {
+    display: block;
+    padding: 9px 18px;
+    color: #1a2332;
+    text-decoration: none;
+    font-size: 13.5px;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
+}
+.himi-filter ul li a:hover {
+    background: #e6f4fc;
+    border-left-color: #1db1e8;
+    color: #004b79;
+}
+.himi-filter ul li.selected a {
+    color: #004b79;
+    font-weight: 600;
+    border-left-color: #004b79;
+    background: #e6f4fc;
+}
+
+/* Résultats count */
+.cl-count {
+    font-size: 13px;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+.cl-count strong { color: #004b79; }
+
+/* Empty */
+.himi-empty {
+    padding: 48px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+}
+</style>
+
+{% block messages %}
+{% if messages %}
+<ul class="messagelist" style="margin-bottom:18px; padding:0; list-style:none;">
+    {% for message in messages %}
+    <li class="{{ message.tags }}" style="padding:12px 20px; border-radius:10px; font-size:14px; font-weight:500; margin-bottom:8px;">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}
+
+<!-- En-tête -->
+<div class="cl-header">
+    <div>
+        <h1 class="cl-title">{{ cl.opts.verbose_name_plural|capfirst }}</h1>
+        <p class="cl-subtitle">Gestion › {{ cl.opts.app_label|capfirst }} › {{ cl.opts.verbose_name_plural|capfirst }}</p>
+    </div>
+    {% if has_add_permission %}
+    <a href="{% url cl.opts|admin_urlname:'add' %}" class="btn-add">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Ajouter {{ cl.opts.verbose_name }}
+    </a>
+    {% endif %}
+</div>
+
+<!-- Recherche -->
+{% if cl.search_fields %}
+<form id="changelist-search" class="himi-search" method="get">
+    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <input type="text" name="q" value="{{ cl.query }}" placeholder="Rechercher dans {{ cl.opts.verbose_name_plural }}...">
+    {% if cl.query %}
+    <a href="?" style="color:#94a3b8;text-decoration:none;font-size:18px;line-height:1;padding:0 4px;">&#x2715;</a>
+    {% endif %}
+    <input type="submit" value="Rechercher">
+</form>
+{% endif %}
+
+<div class="cl-layout">
+    <div class="cl-main">
+
+        {% if cl.result_count %}
+        <p class="cl-count">
+            <strong>{{ cl.result_count }}</strong> {{ cl.opts.verbose_name_plural }}
+            {% if cl.query %} pour &laquo; {{ cl.query }} &raquo;{% endif %}
+        </p>
+        {% endif %}
+
+        <div class="himi-table-wrap">
+
+            <!-- Actions groupées -->
+            {% if action_form and actions_on_top and cl.show_admin_actions %}
+            <div class="himi-actions">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in action_form %}{{ field }}{% endfor %}
+                    <button type="submit" name="index" value="0">Appliquer</button>
+                    {% if cl.result_count %}
+                    <span class="action-counter">{{ cl.result_count }} element(s)</span>
+                    {% endif %}
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Tableau résultats -->
+            {% if cl.result_count %}
+            <table class="himi-table">
+                {% block result_list %}
+                {% include "admin/change_list_results.html" %}
+                {% endblock %}
+            </table>
+
+            <!-- Pagination -->
+            {% if cl.result_count > cl.list_per_page %}
+            <div class="himi-pagination">
+                {% include "admin/pagination.html" %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="himi-empty">
+                Aucun {{ cl.opts.verbose_name }} trouvé.
+                {% if has_add_permission %}
+                <br><a href="{% url cl.opts|admin_urlname:'add' %}" style="color:#004b79; font-weight:600; margin-top:8px; display:inline-block;">+ Ajouter le premier</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    {% if cl.has_filters %}
+    <div class="cl-filter">
+        <div class="himi-filter">
+            <h2>Filtres</h2>
+            {% block filters %}
+            {% if cl.has_filters %}
+                {% for spec in cl.filter_specs %}
+                {% include spec.template_name %}
+                {% endfor %}
+            {% endif %}
+            {% endblock %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

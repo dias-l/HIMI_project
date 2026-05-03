@@ -59,7 +59,143 @@
     .wa-input { flex: 1; padding: 12px 20px; border: none; border-radius: 25px; outline: none; background: white; font-size: 1rem; }
     .wa-btn-send { background: var(--light-blue); border: none; border-radius: 50%; width: 50px; height: 50px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;}
     .wa-btn-send:hover { transform: scale(1.05); }
-    
+
+    /* Header du chat */
+    .wa-chat-header {
+        height: 65px;
+        background: rgba(0,0,0,0.25);
+        display: flex;
+        align-items: center;
+        padding: 0 30px;
+        gap: 15px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        flex-shrink: 0;
+    }
+
+    .wa-header-avatar {
+        width: 40px; height: 40px;
+        border-radius: 50%;
+        background: var(--light-blue);
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .wa-header-name {
+        flex: 1;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .wa-header-name small {
+        display: block;
+        font-size: 0.72rem;
+        font-weight: 400;
+        opacity: 0.6;
+    }
+
+    .btn-voip {
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: 1.5px solid rgba(255,255,255,0.2);
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-voip:hover { background: #22c55e; border-color: #22c55e; transform: scale(1.08); }
+    .btn-voip svg { width: 18px; height: 18px; }
+
+    /* Modal appel */
+    .call-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-modal-overlay.active { display: flex; }
+
+    .call-modal {
+        background: #1a2a3a;
+        border-radius: 24px;
+        padding: 48px 40px 36px;
+        text-align: center;
+        width: 300px;
+        box-shadow: 0 24px 60px rgba(0,0,0,0.5);
+        animation: callPop 0.3s ease;
+    }
+
+    @keyframes callPop {
+        from { opacity: 0; transform: scale(0.88); }
+        to { opacity: 1; transform: scale(1); }
+    }
+
+    .call-avatar {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: var(--light-blue);
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem;
+        font-weight: bold;
+        margin: 0 auto 20px;
+        box-shadow: 0 0 0 8px rgba(29,177,232,0.2);
+    }
+
+    .call-name { color: white; font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+    .call-status { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-bottom: 36px; }
+
+    .call-ripple {
+        animation: ripple 1.5s ease-in-out infinite;
+    }
+
+    @keyframes ripple {
+        0%, 100% { box-shadow: 0 0 0 8px rgba(29,177,232,0.2); }
+        50% { box-shadow: 0 0 0 18px rgba(29,177,232,0.05); }
+    }
+
+    .call-actions { display: flex; justify-content: center; gap: 28px; }
+
+    .btn-end-call {
+        width: 58px; height: 58px;
+        border-radius: 50%;
+        background: #ef4444;
+        border: none;
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 4px 14px rgba(239,68,68,0.4);
+    }
+
+    .btn-end-call:hover { background: #dc2626; transform: scale(1.08); }
+    .btn-end-call svg { width: 24px; height: 24px; }
+
+    .btn-mute {
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        border: 1.5px solid rgba(255,255,255,0.2);
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        align-self: center;
+    }
+
+    .btn-mute:hover { background: rgba(255,255,255,0.2); }
+    .btn-mute.muted { background: rgba(239,68,68,0.3); border-color: #ef4444; }
+    .btn-mute svg { width: 18px; height: 18px; }
+
     /* Scrollbar discrète */
     ::-webkit-scrollbar { width: 6px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
@@ -91,7 +227,24 @@
 
     <div class="wa-chat-area">
         
-<div class="wa-chat-history" id="chatBox">
+        <!-- Header avec bouton VoIP -->
+        <div class="wa-chat-header">
+            <div class="wa-header-avatar">
+                {{ contact.first_name|first|default:contact.username|first|upper }}
+            </div>
+            <div class="wa-header-name">
+                {% if contact.first_name %}{{ contact.first_name }} {{ contact.last_name }}{% else %}{{ contact.username }}{% endif %}
+                <small>En ligne</small>
+            </div>
+            <button class="btn-voip" onclick="startCall()" title="Appel VoIP">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="wa-chat-history" id="chatBox">
             
             {% now "Y-m-d" as today_str %}
 
@@ -149,9 +302,324 @@
 </div>
 
 <script>
+    // ─── SCROLL AUTO ───
     document.addEventListener("DOMContentLoaded", function() {
         var chatBox = document.getElementById("chatBox");
         chatBox.scrollTop = chatBox.scrollHeight;
     });
+</script>
+
+<!-- ─── MODAL APPEL ENTRANT ─── -->
+<div class="call-modal-overlay" id="incomingModal">
+    <div class="call-modal">
+        <div class="call-avatar" style="background: #1db1e8;">
+            <span id="incomingInitial">?</span>
+        </div>
+        <div class="call-name" id="incomingName">Appel entrant</div>
+        <div class="call-status">souhaite vous appeler</div>
+        <div class="call-actions" style="margin-top:28px;">
+            <button class="btn-mute" onclick="rejectCall()" title="Refuser"
+                style="background:#ef4444;border-color:#ef4444;width:58px;height:58px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:24px;height:24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16.003 16.003 0 0114 0 16.003 16.003 0 010 14A16.003 16.003 0 015 17a16.003 16.003 0 010-14z"/>
+                </svg>
+            </button>
+            <button class="btn-mute" onclick="acceptCall()" title="Accepter"
+                style="background:#22c55e;border-color:#22c55e;width:58px;height:58px;">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:24px;height:24px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                </svg>
+            </button>
+        </div>
+        <audio id="ringtone" loop>
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAA..." type="audio/wav">
+        </audio>
+    </div>
+</div>
+
+<!-- ─── MODAL APPEL EN COURS ─── -->
+<div class="call-modal-overlay" id="callModal">
+    <div class="call-modal">
+        <div class="call-avatar call-ripple" id="callAvatar">
+            {{ contact.first_name|first|default:contact.username|first|upper }}
+        </div>
+        <div class="call-name">
+            {% if contact.first_name %}{{ contact.first_name }} {{ contact.last_name }}{% else %}{{ contact.username }}{% endif %}
+        </div>
+        <div class="call-status" id="callStatus">Appel en cours...</div>
+        <div class="call-actions">
+            <button class="btn-mute" id="btnMute" onclick="toggleMute()" title="Micro">
+                <svg id="muteIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                </svg>
+            </button>
+            <button class="btn-end-call" onclick="endCall()" title="Raccrocher">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16.003 16.003 0 0114 0 16.003 16.003 0 010 14A16.003 16.003 0 015 17a16.003 16.003 0 010-14z"/>
+                </svg>
+            </button>
+            <button class="btn-mute" id="btnSpeaker" onclick="toggleSpeaker()" title="Haut-parleur">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0 0l-4-4m4 4l4-4"/>
+                </svg>
+            </button>
+        </div>
+        <audio id="remoteAudio" autoplay></audio>
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+//  HIMI VoIP — Signalisation WebRTC via Django Channels
+// ════════════════════════════════════════════════════════════
+
+const CONTACT_ID  = "{{ contact.id }}";
+const MY_NAME     = "{{ request.user.get_full_name|default:request.user.username }}";
+
+// ─── WebSocket de signalisation ───
+const wsUrl = `ws://${window.location.host}/ws/voip/${CONTACT_ID}/`;
+let socket = null;
+
+// ─── État WebRTC ───
+let peerConnection = null;
+let localStream    = null;
+let isMuted        = false;
+let isCaller       = false;
+let callTimer      = null;
+let callSeconds    = 0;
+let pendingOffer   = null;  // Offre SDP reçue en attente d'acceptation
+
+// ─── Config STUN public (Google) ───
+const rtcConfig = {
+    iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+    ],
+};
+
+// ════════ CONNEXION WEBSOCKET ════════
+function connectWebSocket() {
+    socket = new WebSocket(wsUrl);
+
+    socket.onopen = () => console.log("[VoIP] WebSocket connecté");
+    socket.onclose = () => {
+        console.log("[VoIP] WebSocket fermé — reconnexion dans 3s");
+        setTimeout(connectWebSocket, 3000);
+    };
+    socket.onerror = (e) => console.error("[VoIP] Erreur WebSocket", e);
+    socket.onmessage = (event) => handleSignal(JSON.parse(event.data));
+}
+
+// ════════ DISPATCH DES MESSAGES DE SIGNALISATION ════════
+function handleSignal(data) {
+    console.log("[VoIP] Signal reçu:", data.type);
+
+    switch (data.type) {
+        case "call-request":
+            showIncomingCall(data.sender_name);
+            break;
+        case "call-rejected":
+            setStatus("Appel refusé");
+            stopCall();
+            break;
+        case "offer":
+            pendingOffer = data.sdp;
+            break;
+        case "answer":
+            if (peerConnection) {
+                peerConnection.setRemoteDescription(
+                    new RTCSessionDescription({ type: "answer", sdp: data.sdp })
+                );
+            }
+            break;
+        case "ice-candidate":
+            if (peerConnection && data.candidate) {
+                peerConnection.addIceCandidate(
+                    new RTCIceCandidate(data.candidate)
+                ).catch(console.error);
+            }
+            break;
+        case "call-ended":
+            setStatus("Appel terminé");
+            stopCall();
+            break;
+        case "peer_disconnected":
+            if (peerConnection) {
+                setStatus("Connexion perdue");
+                stopCall();
+            }
+            break;
+    }
+}
+
+// ════════ ENVOYER UN MESSAGE DE SIGNALISATION ════════
+function signal(data) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(data));
+    }
+}
+
+// ════════ LANCER UN APPEL ════════
+async function startCall() {
+    isCaller = true;
+    showCallModal();
+    setStatus("Appel en cours...");
+
+    // Prévenir l'autre utilisateur
+    signal({ type: "call-request", sender_name: MY_NAME });
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        await createPeerConnection();
+
+        // Créer l'offre SDP
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        signal({ type: "offer", sdp: offer.sdp });
+
+    } catch (err) {
+        console.error("[VoIP] Erreur accès micro:", err);
+        setStatus("Microphone inaccessible");
+        setTimeout(stopCall, 2000);
+    }
+}
+
+// ════════ ACCEPTER UN APPEL ════════
+async function acceptCall() {
+    hideIncomingModal();
+    showCallModal();
+    setStatus("Connexion...");
+
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        await createPeerConnection();
+
+        // Appliquer l'offre reçue
+        if (pendingOffer) {
+            await peerConnection.setRemoteDescription(
+                new RTCSessionDescription({ type: "offer", sdp: pendingOffer })
+            );
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            signal({ type: "answer", sdp: answer.sdp });
+            pendingOffer = null;
+        }
+
+    } catch (err) {
+        console.error("[VoIP] Erreur acceptCall:", err);
+        setStatus("Microphone inaccessible");
+        setTimeout(stopCall, 2000);
+    }
+}
+
+// ════════ REFUSER UN APPEL ════════
+function rejectCall() {
+    hideIncomingModal();
+    signal({ type: "call-rejected" });
+    pendingOffer = null;
+}
+
+// ════════ TERMINER UN APPEL ════════
+function endCall() {
+    signal({ type: "call-ended" });
+    stopCall();
+}
+
+// ════════ NETTOYAGE ════════
+function stopCall() {
+    if (callTimer) { clearInterval(callTimer); callTimer = null; }
+    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    isMuted = false;
+    isCaller = false;
+    pendingOffer = null;
+    document.getElementById("btnMute")?.classList.remove("muted");
+    document.getElementById("remoteAudio").srcObject = null;
+    hideCallModal();
+    hideIncomingModal();
+}
+
+// ════════ PEER CONNECTION ════════
+async function createPeerConnection() {
+    peerConnection = new RTCPeerConnection(rtcConfig);
+
+    // Ajouter les pistes audio locales
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    // Recevoir l'audio distant
+    peerConnection.ontrack = (event) => {
+        const remoteAudio = document.getElementById("remoteAudio");
+        remoteAudio.srcObject = event.streams[0];
+        setStatus(formatTime(0));
+        startChrono();
+    };
+
+    // Envoyer les candidats ICE au pair
+    peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+            signal({ type: "ice-candidate", candidate: event.candidate.toJSON() });
+        }
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+        console.log("[VoIP] État connexion:", peerConnection.connectionState);
+        if (peerConnection.connectionState === "failed") {
+            setStatus("Echec de connexion");
+            setTimeout(stopCall, 2000);
+        }
+    };
+}
+
+// ════════ CHRONO ════════
+function startChrono() {
+    callSeconds = 0;
+    if (callTimer) clearInterval(callTimer);
+    callTimer = setInterval(() => {
+        callSeconds++;
+        setStatus(formatTime(callSeconds));
+    }, 1000);
+}
+
+function formatTime(s) {
+    const m = String(Math.floor(s / 60)).padStart(2, "0");
+    const sec = String(s % 60).padStart(2, "0");
+    return `${m}:${sec}`;
+}
+
+// ════════ MICRO ════════
+function toggleMute() {
+    if (!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+    document.getElementById("btnMute").classList.toggle("muted", isMuted);
+}
+
+// ════════ HAUT-PARLEUR ════════
+function toggleSpeaker() {
+    const audio = document.getElementById("remoteAudio");
+    audio.muted = !audio.muted;
+    document.getElementById("btnSpeaker").classList.toggle("muted", audio.muted);
+}
+
+// ════════ UI ════════
+function showCallModal()    { document.getElementById("callModal").classList.add("active"); }
+function hideCallModal()    { document.getElementById("callModal").classList.remove("active"); }
+function hideIncomingModal(){ document.getElementById("incomingModal").classList.remove("active"); }
+function setStatus(text)    { document.getElementById("callStatus").textContent = text; }
+
+function showIncomingCall(senderName) {
+    const parts = senderName.trim().split(" ");
+    document.getElementById("incomingInitial").textContent = (parts[0][0] || "?").toUpperCase();
+    document.getElementById("incomingName").textContent = senderName;
+    document.getElementById("incomingModal").classList.add("active");
+}
+
+// ════════ DÉMARRAGE ════════
+connectWebSocket();
 </script>
 {% endblock %}

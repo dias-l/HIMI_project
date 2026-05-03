@@ -1,0 +1,119 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<style>
+.del-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #e2ecf5;
+    box-shadow: 0 2px 12px rgba(0,75,121,0.05);
+    overflow: hidden;
+    max-width: 640px;
+}
+.del-header {
+    background: #ef4444;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.del-header svg { width: 24px; height: 24px; color: white; flex-shrink: 0; }
+.del-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+.del-body { padding: 28px; }
+.del-body p { font-size: 14px; color: #1a2332; margin: 0 0 16px; line-height: 1.6; }
+.del-body strong { color: #004b79; }
+.del-object {
+    background: #fff8f8;
+    border: 1.5px solid #fecaca;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #991b1b;
+    margin-bottom: 20px;
+}
+.del-related {
+    background: #fef3c7;
+    border: 1.5px solid #fde68a;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+}
+.del-related p { color: #92400e; font-weight: 600; margin: 0 0 8px; }
+.del-related ul { margin: 0; padding-left: 20px; font-size: 13px; color: #78350f; }
+.del-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 4px;
+}
+.btn-confirm-delete {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-confirm-delete:hover { background: #dc2626; }
+.btn-cancel {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1.5px solid #e2ecf5;
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+    display: inline-block;
+}
+.btn-cancel:hover { background: #e2e8f0; color: #334155; }
+</style>
+
+<div class="del-card">
+    <div class="del-header">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <h1>Confirmer la suppression</h1>
+    </div>
+    <div class="del-body">
+        <p>Etes-vous certain de vouloir supprimer l'element suivant ?</p>
+        <div class="del-object">{{ object_name }} : <strong>{{ object }}</strong></div>
+
+        {% if deleted_objects %}
+        <div class="del-related">
+            <p>Les elements suivants seront egalement supprimes :</p>
+            <ul>
+                {% for item in deleted_objects %}
+                <li>{{ item }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <p style="color:#64748b; font-size:13px;">Cette action est <strong style="color:#ef4444;">irreversible</strong>.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="del-actions">
+                <button type="submit" class="btn-confirm-delete">Oui, supprimer</button>
+                <a href="javascript:history.back()" class="btn-cancel">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
