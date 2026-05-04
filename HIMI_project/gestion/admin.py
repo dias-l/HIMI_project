@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django import forms
+from .admin_site import himi_admin_site
 from .models import (
     Classe, Matiere, Etudiant, Professeur,
     Note, Moyenne, CoursEmploiDuTemps, SupportCours,
@@ -232,3 +233,22 @@ class MessageAdmin(admin.ModelAdmin):
     search_fields = ('expediteur__last_name', 'destinataire__last_name')
     ordering      = ('-date_envoi',)
     readonly_fields = ('date_envoi',)
+
+
+# ════════════════════════════════════════════════════════
+#  ENREGISTREMENT SUR himi_admin_site
+#  (même config que le site admin Django standard)
+# ════════════════════════════════════════════════════════
+
+himi_admin_site.register(User,                 HimiUserAdmin)
+himi_admin_site.register(Group)
+himi_admin_site.register(Classe,               ClasseAdmin)
+himi_admin_site.register(Matiere,              MatiereAdmin)
+himi_admin_site.register(Etudiant,             EtudiantAdmin)
+himi_admin_site.register(Professeur,           ProfesseurAdmin)
+himi_admin_site.register(Note,                 NoteAdmin)
+himi_admin_site.register(Moyenne,              MoyenneAdmin)
+himi_admin_site.register(CoursEmploiDuTemps,   CoursEmploiDuTempsAdmin)
+himi_admin_site.register(SupportCours,         SupportCoursAdmin)
+himi_admin_site.register(Actualite,            ActualiteAdmin)
+himi_admin_site.register(Message,              MessageAdmin)

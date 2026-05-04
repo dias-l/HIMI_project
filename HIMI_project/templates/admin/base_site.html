@@ -561,33 +561,74 @@ ul.messagelist li.warning {
     background: var(--sky) !important;
 }
 
-/* ─── FORMULAIRES (change_form) ─── */
-.form-row {
-    border-bottom: 1px solid var(--border) !important;
-    padding: 16px 20px !important;
-    display: flex !important;
-    align-items: flex-start !important;
-    gap: 20px !important;
+/* ─── FORMULAIRES (change_form Django défaut) ─── */
+
+/* Conteneur principal du formulaire */
+#content-main form {
+    margin: 0 !important;
 }
 
-.form-row:last-child { border-bottom: none !important; }
+/* Carte fieldset */
+fieldset.module {
+    background: white !important;
+    border-radius: 16px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 2px 12px rgba(0,75,121,0.05) !important;
+    overflow: hidden !important;
+    margin-bottom: 20px !important;
+    padding: 0 !important;
+}
 
-.form-row label {
+fieldset.module h2 {
+    background: var(--marine) !important;
+    color: white !important;
+    font-family: 'Syne', sans-serif !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    padding: 14px 24px !important;
+    margin: 0 !important;
+    letter-spacing: 0.3px !important;
+    text-transform: none !important;
+    border-radius: 0 !important;
+}
+
+/* Ligne de champ */
+.form-row {
+    padding: 14px 24px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+    flex-wrap: wrap !important;
+}
+
+.form-row:last-of-type { border-bottom: none !important; }
+
+/* Label */
+.form-row label,
+.form-row > label {
+    min-width: 180px !important;
+    flex-shrink: 0 !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     color: var(--muted) !important;
-    min-width: 180px !important;
-    padding-top: 8px !important;
-    flex-shrink: 0 !important;
+    padding-top: 10px !important;
+    display: block !important;
 }
 
-.form-row .required label::after,
+/* Champ obligatoire */
+.required label,
+label.required {
+    color: var(--muted) !important;
+}
+.required label::after,
 label.required::after {
     content: ' *' !important;
     color: #ef4444 !important;
-    font-size: 12px !important;
+    font-size: 11px !important;
 }
 
+/* Inputs */
 input[type="text"],
 input[type="email"],
 input[type="password"],
@@ -605,11 +646,9 @@ select {
     font-size: 14px !important;
     font-family: 'DM Sans', sans-serif !important;
     color: var(--text) !important;
-    background: white !important;
+    background: #fafcff !important;
     outline: none !important;
     transition: border-color 0.2s, box-shadow 0.2s !important;
-    width: 100% !important;
-    max-width: 500px !important;
 }
 
 input[type="text"]:focus,
@@ -620,99 +659,154 @@ input[type="date"]:focus,
 input[type="time"]:focus,
 textarea:focus,
 select:focus {
-    border-color: var(--blue) !important;
-    box-shadow: 0 0 0 3px rgba(29,177,232,0.12) !important;
+    border-color: var(--light-blue) !important;
+    box-shadow: 0 0 0 3px rgba(29,177,232,0.10) !important;
+    background: white !important;
 }
 
-textarea { 
-    min-height: 100px !important; 
-    resize: vertical !important; 
+textarea {
+    min-height: 90px !important;
+    resize: vertical !important;
+    width: 100% !important;
 }
 
-select { 
-    cursor: pointer !important; 
-    max-width: 500px !important;
-}
+select { cursor: pointer !important; }
 
-/* SelectMultiple (filter_horizontal) */
-.selector-available h2, .selector-chosen h2 {
-    background: var(--marine) !important;
-    color: white !important;
-    font-size: 12px !important;
-    font-weight: 600 !important;
-    padding: 8px 14px !important;
-    border-radius: 8px 8px 0 0 !important;
-}
-
-.selector-chooser li button {
-    background: var(--marine) !important;
+input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: var(--marine) !important;
+    margin-top: 10px !important;
+    cursor: pointer !important;
 }
 
 /* Help text */
-.help { 
-    font-size: 12px !important; 
-    color: var(--muted) !important; 
+.help, p.help {
+    font-size: 12px !important;
+    color: #94a3b8 !important;
     margin-top: 5px !important;
     display: block !important;
+    line-height: 1.5 !important;
+    font-style: italic !important;
 }
 
-/* Error messages on fields */
+/* Errors */
 ul.errorlist {
     list-style: none !important;
     padding: 0 !important;
     margin: 6px 0 0 !important;
 }
-
 ul.errorlist li {
-    color: var(--error-txt) !important;
-    background: var(--error-bg) !important;
-    border-radius: 7px !important;
-    padding: 6px 12px !important;
+    color: #991b1b !important;
+    background: #fee2e2 !important;
+    border-radius: 8px !important;
+    padding: 7px 12px !important;
     font-size: 13px !important;
     margin-bottom: 4px !important;
 }
+
+/* Boutons related (crayon, +, loupe en bleu cyan) */
+.related-widget-wrapper {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.related-widget-wrapper select,
+.related-widget-wrapper input {
+    flex: 1 !important;
+}
+
+a.related-widget-wrapper-link,
+a.add-related,
+a.change-related,
+a.delete-related,
+a.view-related {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+    text-decoration: none !important;
+    font-size: 14px !important;
+    transition: all 0.15s !important;
+    flex-shrink: 0 !important;
+    background: var(--marine) !important;
+    color: white !important;
+}
+
+a.related-widget-wrapper-link:hover,
+a.add-related:hover,
+a.change-related:hover { 
+    background: var(--light-blue) !important; 
+    color: white !important;
+}
+
+/* Masquer les img dans les boutons related */
+a.related-widget-wrapper-link img,
+a.add-related img { display: none !important; }
+
+/* Texte dans les boutons related */
+a.add-related::after { content: '+' !important; font-weight: 700 !important; }
+a.change-related::after { content: '✎' !important; }
+a.delete-related::after { content: '×' !important; }
+a.view-related::after { content: '◉' !important; }
 
 /* ─── SUBMIT ROW ─── */
 .submit-row {
     background: white !important;
     border-top: 1px solid var(--border) !important;
+    border-radius: 16px !important;
     padding: 18px 24px !important;
-    border-radius: 0 0 16px 16px !important;
     display: flex !important;
     align-items: center !important;
     gap: 10px !important;
     flex-wrap: wrap !important;
+    margin-top: 0 !important;
+    box-shadow: 0 2px 12px rgba(0,75,121,0.05) !important;
+    border: 1px solid var(--border) !important;
 }
 
 .submit-row input[type="submit"],
 .submit-row button[type="submit"] {
-    background: var(--marine) !important;
-    color: white !important;
     border: none !important;
-    border-radius: 10px !important;
-    padding: 10px 28px !important;
-    font-size: 14px !important;
+    border-radius: 50px !important;
+    padding: 10px 26px !important;
+    font-size: 13.5px !important;
     font-weight: 600 !important;
     font-family: 'DM Sans', sans-serif !important;
     cursor: pointer !important;
     transition: background 0.2s !important;
 }
 
-.submit-row input[type="submit"]:hover { background: var(--marine-dark) !important; }
+.submit-row input[name="_save"] {
+    background: var(--marine) !important;
+    color: white !important;
+}
+.submit-row input[name="_save"]:hover { background: var(--marine-dark) !important; }
+
+.submit-row input[name="_addanother"],
+.submit-row input[name="_continue"] {
+    background: var(--sky) !important;
+    color: var(--marine) !important;
+}
+.submit-row input[name="_addanother"]:hover,
+.submit-row input[name="_continue"]:hover { background: var(--sky-dark) !important; }
 
 .submit-row .deletelink {
+    margin-left: auto !important;
     background: #fee2e2 !important;
     color: #b91c1c !important;
     border: 1.5px solid #fecaca !important;
-    border-radius: 10px !important;
-    padding: 10px 20px !important;
+    border-radius: 50px !important;
+    padding: 9px 20px !important;
     font-size: 13px !important;
     font-weight: 600 !important;
     text-decoration: none !important;
-    margin-left: auto !important;
     transition: background 0.2s !important;
+    display: inline-block !important;
 }
-
 .submit-row .deletelink:hover { background: #fecaca !important; }
 
 /* ─── OBJET TOOLBAR (inline "Enregistrer et continuer") ─── */

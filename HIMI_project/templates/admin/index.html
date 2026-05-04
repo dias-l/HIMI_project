@@ -3,116 +3,47 @@
 
 {% block content %}
 <style>
-.himi-header {
-    background: linear-gradient(135deg, #004b79 0%, #006ba6 60%, #1db1e8 140%);
-    border-radius: 20px;
-    padding: 34px 40px;
+body { background: #f0f6fb !important; }
+
+.dashboard-wrap { max-width: 1100px; margin: 0 auto; }
+
+.dash-header {
+    background: linear-gradient(135deg, #004b79 0%, #006ba6 55%, #1db1e8 130%);
+    border-radius: 18px;
+    padding: 30px 36px;
     color: white;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
     position: relative;
     overflow: hidden;
 }
-.himi-header::after {
+.dash-header::after {
     content: '';
     position: absolute;
-    top: -60px; right: -60px;
-    width: 200px; height: 200px;
+    top: -50px; right: -50px;
+    width: 180px; height: 180px;
     background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
-.himi-header h1 {
+.dash-header h1 {
     font-family: 'Syne', sans-serif !important;
-    font-size: 1.8rem !important;
+    font-size: 1.6rem !important;
     font-weight: 800 !important;
     color: white !important;
-    margin: 0 0 6px !important;
+    margin: 0 0 4px !important;
 }
-.himi-header p { opacity: 0.75; font-size: 14px; margin: 0; }
+.dash-header p { color: rgba(255,255,255,0.72); font-size: 13.5px; margin: 0; }
 
-.models-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin-bottom: 28px;
-}
+.section-block { margin-bottom: 36px; }
 
-.model-card {
-    background: white;
-    border-radius: 16px;
-    border: 1px solid #e2ecf5;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0,75,121,0.04);
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.model-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,75,121,0.10); }
-
-.model-card-header {
-    background: #004b79;
-    padding: 14px 18px;
+.section-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 10px;
 }
-.model-card-header h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 13.5px;
-    font-weight: 700;
-    color: white;
-    margin: 0;
-}
-.model-card-header .app-badge {
-    background: rgba(255,255,255,0.18);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 9px;
-    border-radius: 50px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.model-card-body { padding: 4px 0; }
-
-.model-action {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 11px 18px;
-    border-bottom: 1px solid #f1f5f9;
-    text-decoration: none !important;
-    transition: background 0.15s;
-}
-.model-action:last-child { border-bottom: none; }
-.model-action:hover { background: #e6f4fc; }
-.model-action-label {
-    font-size: 13.5px;
-    font-weight: 500;
-    color: #1a2332 !important;
-    text-decoration: none !important;
-}
-.model-action:hover .model-action-label { color: #1db1e8 !important; }
-.model-action-arrow { 
-    font-size: 13px; 
-    color: #94a3b8; 
-    opacity: 0.5;
-    transition: transform 0.15s, opacity 0.15s;
-}
-.model-action:hover .model-action-arrow { opacity: 1; transform: translateX(3px); }
-
-.action-add-btn {
-    font-size: 11px;
-    font-weight: 700;
-    color: #1db1e8 !important;
-    background: #e0f2fe;
-    padding: 3px 10px;
-    border-radius: 50px;
-    text-decoration: none !important;
-    transition: background 0.15s;
-    flex-shrink: 0;
-    margin-left: 8px;
-}
-.action-add-btn:hover { background: #bae6fd !important; color: #004b79 !important; }
 
 .section-title {
     font-family: 'Syne', sans-serif;
@@ -122,88 +53,273 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 16px;
-    margin-top: 8px;
+    margin: 0;
 }
-.section-title::after { content: ''; flex: 1; height: 1px; background: #e2ecf5; }
 
-@media (max-width: 900px) { .models-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 600px) { .models-grid { grid-template-columns: 1fr; } }
+.count-pill {
+    background: #e6f4fc;
+    color: #004b79;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 11px;
+    border-radius: 50px;
+    border: 1px solid #d0eaf8;
+}
+
+.btn-add {
+    background: #004b79;
+    color: white !important;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+}
+.btn-add:hover { background: #003358 !important; color: white !important; }
+.btn-add svg { width: 14px; height: 14px; }
+
+.himi-table-wrap {
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #e2ecf5;
+    box-shadow: 0 2px 12px rgba(0,75,121,0.05);
+    overflow: hidden;
+}
+
+.himi-table { width: 100%; border-collapse: collapse; }
+
+.himi-table thead tr { background: #004b79; }
+.himi-table thead th {
+    color: rgba(255,255,255,0.88) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    letter-spacing: 0.6px !important;
+    text-transform: uppercase !important;
+    border: none !important;
+    white-space: nowrap !important;
+    background: transparent !important;
+}
+
+.himi-table tbody tr { border-bottom: 1px solid #f1f5f9; transition: background 0.12s; }
+.himi-table tbody tr:last-child { border-bottom: none; }
+.himi-table tbody tr:hover { background: #f0f6fb; }
+
+.himi-table tbody td {
+    padding: 12px 16px !important;
+    font-size: 13.5px !important;
+    color: #1a2332 !important;
+    border: none !important;
+    vertical-align: middle !important;
+}
+
+.pill-blue {
+    background: #e0f2fe; color: #0369a1;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 50px;
+    white-space: nowrap; display: inline-block;
+}
+.pill-purple {
+    background: #f3e8ff; color: #7e22ce;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 50px;
+    margin: 2px; display: inline-block;
+}
+
+.btn-edit {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: #e6f4fc;
+    color: #004b79 !important;
+    text-decoration: none !important;
+    transition: all 0.15s;
+    border: 1px solid #d0eaf8;
+}
+.btn-edit:hover { background: #004b79; color: white !important; }
+.btn-edit svg { width: 14px; height: 14px; }
+
+.empty-row td {
+    text-align: center !important;
+    color: #94a3b8 !important;
+    font-size: 13px !important;
+    padding: 32px !important;
+    font-style: italic;
+}
 </style>
 
-<div class="himi-header">
-    <h1>Panneau d'administration</h1>
-    <p>HIMI Business School — Gestion complete de l'etablissement</p>
-</div>
+<div class="dashboard-wrap">
 
-{% if app_list %}
-
-    {% for app in app_list %}
-    <div class="section-title">{{ app.name }}</div>
-    <div class="models-grid">
-        {% for model in app.models %}
-        <div class="model-card">
-            <div class="model-card-header">
-                <h3>{{ model.name }}</h3>
-                <span class="app-badge">{{ app.app_label }}</span>
-            </div>
-            <div class="model-card-body">
-                {% if model.admin_url %}
-                <a href="{{ model.admin_url }}" class="model-action">
-                    <span class="model-action-label">Voir la liste</span>
-                    <span class="model-action-arrow">&#8594;</span>
-                </a>
-                {% endif %}
-                {% if model.add_url %}
-                <a href="{{ model.add_url }}" class="model-action">
-                    <span class="model-action-label">Ajouter un enregistrement</span>
-                    <span class="action-add-btn">+ Ajouter</span>
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
+    <div class="dash-header">
+        <h1>Administration</h1>
+        <p>HIMI Business School — Gérez les étudiants, professeurs, classes et modules</p>
     </div>
-    {% endfor %}
 
-{% else %}
-    <div style="background:white; border-radius:16px; border:1px solid #e2ecf5; padding:48px; text-align:center; color:#64748b;">
-        <p style="font-size:15px; margin:0;">Aucun modele disponible. Verifiez votre configuration admin.</p>
-    </div>
-{% endif %}
-
-{% if user.is_active and user.is_staff %}
-<div class="section-title" style="margin-top:16px;">Actions recentes</div>
-<div style="background:white; border-radius:16px; border:1px solid #e2ecf5; box-shadow:0 2px 10px rgba(0,75,121,0.04); overflow:hidden;">
-    {% load log %}
-    {% get_admin_log 8 as admin_log for_user user %}
-    {% if not admin_log %}
-    <div style="padding:24px 28px; color:#64748b; font-size:13.5px;">Aucune action recente.</div>
-    {% else %}
-    {% for entry in admin_log %}
-    <div style="display:flex; align-items:center; gap:14px; padding:13px 24px; border-bottom:1px solid #f1f5f9;">
-        {% if entry.is_addition %}
-        <div style="width:32px;height:32px;border-radius:9px;background:#dcfce7;color:#15803d;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:700;font-size:16px;">+</div>
-        {% elif entry.is_change %}
-        <div style="width:32px;height:32px;border-radius:9px;background:#fef3c7;color:#b45309;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:600;">~</div>
-        {% elif entry.is_deletion %}
-        <div style="width:32px;height:32px;border-radius:9px;background:#fee2e2;color:#b91c1c;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;font-weight:600;">-</div>
-        {% endif %}
-        <div style="flex:1;">
-            <strong style="font-size:13.5px;color:#1a2332;display:block;">
-                {% if entry.is_deletion %}
-                    {{ entry.object_repr }}
-                {% else %}
-                    <a href="{{ entry.get_admin_url }}" style="color:#004b79;text-decoration:none;">{{ entry.object_repr }}</a>
-                {% endif %}
-            </strong>
-            <span style="font-size:12px;color:#64748b;">{{ entry.content_type.app_label }} › {{ entry.content_type }}</span>
-        </div>
-        <div style="font-size:11.5px;color:#94a3b8;white-space:nowrap;">{{ entry.action_time|timesince }} ago</div>
+    {% if messages %}
+    {% for message in messages %}
+    <div style="padding:12px 20px; border-radius:10px; font-size:14px; font-weight:500; margin-bottom:16px;
+        {% if 'success' in message.tags %}background:#dcfce7;color:#166534;
+        {% elif 'error' in message.tags %}background:#fee2e2;color:#991b1b;
+        {% else %}background:#fef3c7;color:#92400e;{% endif %}">
+        {{ message }}
     </div>
     {% endfor %}
     {% endif %}
-</div>
-{% endif %}
 
+    <!-- ══ ETUDIANTS ══ -->
+    <div class="section-block">
+        <div class="section-head">
+            <h2 class="section-title">
+                Etudiants
+                <span class="count-pill">{{ etudiants.count }}</span>
+            </h2>
+            <a href="/admin/auth/user/add/" class="btn-add">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouvel etudiant
+            </a>
+        </div>
+        <div class="himi-table-wrap">
+            <table class="himi-table">
+                <thead><tr>
+                    <th>Nom</th><th>Prenom</th><th>Identifiant</th><th>Classe</th><th style="text-align:center;">Modifier</th>
+                </tr></thead>
+                <tbody>
+                {% for e in etudiants %}
+                <tr>
+                    <td><strong>{{ e.user.last_name|upper }}</strong></td>
+                    <td>{{ e.user.first_name }}</td>
+                    <td style="color:#64748b;font-size:12px;">{{ e.user.username }}</td>
+                    <td>{% if e.classe %}<span class="pill-blue">{{ e.classe }}</span>{% else %}<span style="color:#94a3b8;">—</span>{% endif %}</td>
+                    <td style="text-align:center;">
+                        <a href="/admin/auth/user/{{ e.user.pk }}/change/" class="btn-edit" title="Modifier">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row"><td colspan="5">Aucun etudiant enregistre — <a href="/admin/auth/user/add/" style="color:#004b79;font-weight:600;">Ajouter le premier</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══ PROFESSEURS ══ -->
+    <div class="section-block">
+        <div class="section-head">
+            <h2 class="section-title">
+                Professeurs
+                <span class="count-pill">{{ professeurs.count }}</span>
+            </h2>
+            <a href="/admin/auth/user/add/" class="btn-add">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouveau professeur
+            </a>
+        </div>
+        <div class="himi-table-wrap">
+            <table class="himi-table">
+                <thead><tr>
+                    <th>Nom</th><th>Prenom</th><th>Telephone</th><th>Modules enseignes</th><th style="text-align:center;">Modifier</th>
+                </tr></thead>
+                <tbody>
+                {% for p in professeurs %}
+                <tr>
+                    <td><strong>{{ p.user.last_name|upper }}</strong></td>
+                    <td>{{ p.user.first_name }}</td>
+                    <td style="color:#64748b;font-size:13px;">{{ p.telephone|default:"—" }}</td>
+                    <td>{% for m in p.matieres.all %}<span class="pill-purple">{{ m.nom }}</span>{% empty %}<span style="color:#94a3b8;">—</span>{% endfor %}</td>
+                    <td style="text-align:center;">
+                        <a href="/admin/auth/user/{{ p.user.pk }}/change/" class="btn-edit" title="Modifier">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row"><td colspan="5">Aucun professeur enregistre — <a href="/admin/auth/user/add/" style="color:#004b79;font-weight:600;">Ajouter le premier</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══ CLASSES ══ -->
+    <div class="section-block">
+        <div class="section-head">
+            <h2 class="section-title">
+                Classes
+                <span class="count-pill">{{ classes.count }}</span>
+            </h2>
+            <a href="/admin/gestion/classe/add/" class="btn-add">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouvelle classe
+            </a>
+        </div>
+        <div class="himi-table-wrap">
+            <table class="himi-table">
+                <thead><tr>
+                    <th>Nom</th><th>Etudiants inscrits</th><th style="text-align:center;">Modifier</th>
+                </tr></thead>
+                <tbody>
+                {% for c in classes %}
+                <tr>
+                    <td><strong>{{ c.nom }}</strong></td>
+                    <td><span class="pill-blue">{{ c.etudiant_set.count }} etudiant{{ c.etudiant_set.count|pluralize }}</span></td>
+                    <td style="text-align:center;">
+                        <a href="/admin/gestion/classe/{{ c.pk }}/change/" class="btn-edit" title="Modifier">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row"><td colspan="3">Aucune classe — <a href="/admin/gestion/classe/add/" style="color:#004b79;font-weight:600;">Ajouter la premiere</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ══ MODULES ══ -->
+    <div class="section-block">
+        <div class="section-head">
+            <h2 class="section-title">
+                Modules
+                <span class="count-pill">{{ matieres.count }}</span>
+            </h2>
+            <a href="/admin/gestion/matiere/add/" class="btn-add">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Nouveau module
+            </a>
+        </div>
+        <div class="himi-table-wrap">
+            <table class="himi-table">
+                <thead><tr>
+                    <th>Nom du module</th><th>Professeurs assignes</th><th style="text-align:center;">Modifier</th>
+                </tr></thead>
+                <tbody>
+                {% for m in matieres %}
+                <tr>
+                    <td><strong>{{ m.nom }}</strong></td>
+                    <td><span class="pill-purple">{{ m.professeur_set.count }} prof{{ m.professeur_set.count|pluralize }}</span></td>
+                    <td style="text-align:center;">
+                        <a href="/admin/gestion/matiere/{{ m.pk }}/change/" class="btn-edit" title="Modifier">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="empty-row"><td colspan="3">Aucun module — <a href="/admin/gestion/matiere/add/" style="color:#004b79;font-weight:600;">Ajouter le premier</a></td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
