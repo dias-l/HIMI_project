@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="text-align:center; padding:20px;">
+    <h2>Appel avec {{ contact.get_full_name|default:contact.username }}</h2>
+
+    <div style="display:flex; justify-content:center; gap:20px; margin:20px 0;">
+        <div>
+            <p>Moi</p>
+            <video id="localVideo" autoplay muted playsinline
+                   style="width:300px; background:#000; border-radius:8px;"></video>
+        </div>
+        <div>
+            <p>{{ contact.username }}</p>
+            <video id="remoteVideo" autoplay playsinline
+                   style="width:300px; background:#000; border-radius:8px;"></video>
+        </div>
+    </div>
+
+    <div style="margin:20px 0;">
+        <button id="btnAppeler" onclick="demarrerAppel()"
+                style="background:green; color:white; padding:10px 30px; border:none; border-radius:20px; font-size:16px; cursor:pointer;">
+            📞 Appeler
+        </button>
+        <button id="btnRaccrocher" onclick="raccrocher()"
+                style="background:red; color:white; padding:10px 30px; border:none; border-radius:20px; font-size:16px; cursor:pointer; display:none;">
+            📵 Raccrocher
+        </button>
+    </div>
+    <p id="statut">En attente...</p>
+</div>
+
+<script>
+const contactId = {{ contact_id }};
+const wsUrl = `ws://${window.location.host}/ws/voip/${contactId}/`;
+const iceConfig = {
+    iceServers: [
+        { urls: "stun:{{ request.get_host|default:'192.168.1.2' }}:3478" },
+        {
+            urls: "turn:{{ request.get_host|default:'192.168.1.2' }}:3478",
+            username: "himi",
+            credential: "himi2026"
+        }
+    ]
+};
+
+let pc, localStream, ws;
+
+async function init() {
+    ws = new WebSocket(wsUrl);
+    ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === 'offer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(data));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            ws.send(JSON.stringify(answer));
+            document.getElementById('statut').innerText = 'Appel en cours...';
+            document.getElementById('btnRaccrocher').style.display = 'inline-block';
+        } else if (data.type === 'answer') {
+            await pc.setRemoteDescription(new RTCSessionDescription(data));
+            document.getElementById('statut').innerText = 'Appel en cours...';
+        } else if (data.type === 'ice-candidate') {
+            await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        } else if (data.type === 'peer_disconnected') {
+            raccrocher();
+        } else if (data.type === 'call-request') {
+            document.getElementById('statut').innerText = `${data.sender_name} vous appelle...`;
+            document.getElementById('btnAppeler').style.display = 'none';
+            document.getElementById('btnRaccrocher').style.display = 'inline-block';
+            await preparerPC();
+        }
+    };
+}
+
+async function preparerPC() {
+    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+    document.getElementById('localVideo').srcObject = localStream;
+    pc = new RTCPeerConnection(iceConfig);
+    localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    pc.ontrack = (event) => {
+        document.getElementById('remoteVideo').srcObject = event.streams[0];
+    };
+    pc.onicecandidate = (event) => {
+        if (event.candidate) {
+            ws.send(JSON.stringify({ type: 'ice-candidate', candidate: event.candidate }));
+        }
+    };
+}
+
+async function demarrerAppel() {
+    document.getElementById('statut').innerText = 'Appel en cours...';
+    document.getElementById('btnAppeler').style.display = 'none';
+    document.getElementById('btnRaccrocher').style.display = 'inline-block';
+    await preparerPC();
+    ws.send(JSON.stringify({ type: 'call-request' }));
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    ws.send(JSON.stringify(offer));
+}
+
+function raccrocher() {
+    if (pc) pc.close();
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    ws.send(JSON.stringify({ type: 'call-ended' }));
+    document.getElementById('localVideo').srcObject = null;
+    document.getElementById('remoteVideo').srcObject = null;
+    document.getElementById('statut').innerText = 'Appel terminé.';
+    document.getElementById('btnAppeler').style.display = 'inline-block';
+    document.getElementById('btnRaccrocher').style.display = 'none';
+}
+
+init();
+</script>
+{% endblock %}
