@@ -525,7 +525,19 @@ function handleSignal(data) {
             stopCall();
             break;
         case "offer":
-            pendingOffer = data.sdp;
+            if (peerConnection && peerConnection.signalingState !== "closed") {
+                // Renégociation pendant l'appel (ex: activation caméra)
+                peerConnection.setRemoteDescription(
+                    new RTCSessionDescription({ type: "offer", sdp: data.sdp })
+                ).then(async () => {
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    signal({ type: "answer", sdp: answer.sdp });
+                }).catch(console.error);
+            } else {
+                // Offre initiale d'appel
+                pendingOffer = data.sdp;
+            }
             break;
         case "answer":
             if (peerConnection) {
