@@ -2,76 +2,149 @@
 
 {% block content %}
 <style>
-    /* --- FORCER LE PLEIN ÉCRAN --- */
+    /* ═══════════════════════════════════
+       RESET LAYOUT BASE.HTML
+    ═══════════════════════════════════ */
     .left-panel { display: none !important; }
     .right-panel { flex: 0 0 100% !important; max-width: 100% !important; padding: 0 !important; overflow: hidden; }
-    
-    /* C'est cette ligne qui fait sauter la limite de largeur de base.html ! */
     .right-panel > .container { max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
 
-    /* LE CONTENEUR PRINCIPAL */
-    .wa-container { display: flex; height: calc(100vh - 60px); width: 100%; }
-    
-    /* --- PANNEAU GAUCHE : 30% --- */
-    .wa-sidebar { 
-        width: 30%; 
-        flex: 0 0 30%; 
-        background: white; 
-        border-right: 1px solid rgba(0,0,0,0.1); 
-        display: flex; 
-        flex-direction: column; 
+    /* ═══════════════════════════════════
+       CONTENEUR PRINCIPAL
+    ═══════════════════════════════════ */
+    .wa-container {
+        display: flex;
+        height: calc(100vh - 60px);
+        width: 100%;
     }
-    .wa-sidebar-header { height: 65px; background: #f8f9fa; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #e9ecef; }
-    .btn-new-msg { background-color: var(--marine-blue); color: white; border-radius: 20px; padding: 6px 15px; font-size: 0.85rem; font-weight: bold; text-decoration: none; transition: 0.2s; }
-    .btn-new-msg:hover { background-color: #003658; color: white; }
-    
-    .wa-contacts { flex: 1; overflow-y: auto; }
-    .wa-contact-item { display: flex; align-items: center; padding: 15px 20px; border-bottom: 1px solid #f2f2f2; text-decoration: none; color: inherit; transition: 0.2s; }
-    .wa-contact-item:hover { background: #f5f6f6; }
-    .wa-contact-item.active { background: #e6f4fc; border-left: 4px solid var(--marine-blue); } 
-    
-    .wa-avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--light-blue); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; margin-right: 15px; flex-shrink: 0; }
 
-    /* --- PANNEAU DROIT : 70% (FOND BLEU MARINE) --- */
-    .wa-chat-area { 
-        width: 70%; 
-        flex: 0 0 70%; 
-        display: flex; 
-        flex-direction: column; 
+    /* ═══════════════════════════════════
+       SIDEBAR CONTACTS (30%)
+    ═══════════════════════════════════ */
+    .wa-sidebar {
+        width: 30%;
+        flex: 0 0 30%;
+        background: white;
+        border-right: 1px solid rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
+    }
+    .wa-sidebar-header {
+        height: 65px;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        border-bottom: 1px solid #e9ecef;
+        flex-shrink: 0;
+    }
+    .btn-new-msg {
+        background-color: var(--marine-blue);
+        color: white;
+        border-radius: 20px;
+        padding: 6px 15px;
+        font-size: 0.85rem;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-new-msg:hover { background-color: #003658; color: white; }
+    .wa-contacts { flex: 1; overflow-y: auto; }
+    .wa-contact-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 20px;
+        border-bottom: 1px solid #f2f2f2;
+        text-decoration: none;
+        color: inherit;
+        transition: 0.2s;
+    }
+    .wa-contact-item:hover { background: #f5f6f6; }
+    .wa-contact-item.active { background: #e6f4fc; border-left: 4px solid var(--marine-blue); }
+    .wa-avatar {
+        width: 45px; height: 45px;
+        border-radius: 50%;
+        background: var(--light-blue);
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════
+       ZONE CHAT (70%)
+    ═══════════════════════════════════ */
+    .wa-chat-area {
+        width: 70%;
+        flex: 0 0 70%;
+        display: flex;
+        flex-direction: column;
         background-color: var(--marine-blue);
     }
-    
-    .wa-chat-history { flex: 1; overflow-y: auto; padding: 30px 50px; display: flex; flex-direction: column; }
-    
-    /* Les Bulles de discussion */
-    .wa-bubble { max-width: 65%; padding: 10px 15px; border-radius: 12px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.4; box-shadow: 0 2px 5px rgba(0,0,0,0.2); position: relative; }
-    
-    /* Bulle Envoyée (Droite) */
+    .wa-chat-history {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px 50px;
+        display: flex;
+        flex-direction: column;
+    }
+    .wa-bubble {
+        max-width: 65%;
+        padding: 10px 15px;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        position: relative;
+    }
     .wa-bubble.sent { align-self: flex-end; background-color: #dcf8c6; border-top-right-radius: 0; color: #111; }
-    
-    /* Bulle Reçue (Gauche) */
     .wa-bubble.received { align-self: flex-start; background-color: white; border-top-left-radius: 0; color: #111; }
-
     .wa-time { font-size: 0.7rem; color: #666; text-align: right; margin-top: 5px; display: block; }
-
-    /* Zone de texte en bas */
-    .wa-input-area { background: rgba(0, 0, 0, 0.2); padding: 15px 30px; display: flex; align-items: center; gap: 15px; }
-    .wa-input { flex: 1; padding: 12px 20px; border: none; border-radius: 25px; outline: none; background: white; font-size: 1rem; }
-    .wa-btn-send { background: var(--light-blue); border: none; border-radius: 50%; width: 50px; height: 50px; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;}
+    .wa-input-area {
+        background: rgba(0,0,0,0.2);
+        padding: 15px 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-shrink: 0;
+    }
+    .wa-input {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        outline: none;
+        background: white;
+        font-size: 1rem;
+    }
+    .wa-btn-send {
+        background: var(--light-blue);
+        border: none;
+        border-radius: 50%;
+        width: 50px; height: 50px;
+        color: white;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+        flex-shrink: 0;
+    }
     .wa-btn-send:hover { transform: scale(1.05); }
 
-    /* Header du chat */
+    /* Header chat */
     .wa-chat-header {
         height: 65px;
         background: rgba(0,0,0,0.25);
         display: flex;
         align-items: center;
-        padding: 0 30px;
-        gap: 15px;
+        padding: 0 20px;
+        gap: 12px;
         border-bottom: 1px solid rgba(255,255,255,0.08);
         flex-shrink: 0;
     }
-
     .wa-header-avatar {
         width: 40px; height: 40px;
         border-radius: 50%;
@@ -82,21 +155,18 @@
         font-size: 1.1rem;
         flex-shrink: 0;
     }
-
     .wa-header-name {
         flex: 1;
         color: white;
         font-weight: 600;
         font-size: 1rem;
     }
-
     .wa-header-name small {
         display: block;
         font-size: 0.72rem;
         font-weight: 400;
         opacity: 0.6;
     }
-
     .btn-voip {
         width: 42px; height: 42px;
         border-radius: 50%;
@@ -106,44 +176,38 @@
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
         transition: all 0.2s;
+        flex-shrink: 0;
     }
-
     .btn-voip:hover { background: #22c55e; border-color: #22c55e; transform: scale(1.08); }
     .btn-voip svg { width: 18px; height: 18px; }
 
-    /* Modal appel */
+    /* ═══════════════════════════════════
+       MODALS APPEL
+    ═══════════════════════════════════ */
     .call-modal-overlay {
         display: none;
         position: fixed;
         inset: 0;
-        background: rgba(0,0,0,0.65);
+        background: rgba(0,0,0,0.7);
         z-index: 9999;
         align-items: center;
         justify-content: center;
     }
-
     .call-modal-overlay.active { display: flex; }
-
     .call-modal {
         background: #1a2a3a;
         border-radius: 24px;
-        padding: 36px 40px 32px;
+        padding: 40px 36px 32px;
         text-align: center;
-        width: 320px;
+        width: 300px;
         box-shadow: 0 24px 60px rgba(0,0,0,0.5);
         animation: callPop 0.3s ease;
-        transition: width 0.3s ease;
     }
-
-    .call-modal.video-active {
-        width: 480px;
-    }
-
+    .call-modal.video-active { width: 480px; }
     @keyframes callPop {
-        from { opacity: 0; transform: scale(0.88); }
-        to { opacity: 1; transform: scale(1); }
+        from { opacity:0; transform: scale(0.88); }
+        to { opacity:1; transform: scale(1); }
     }
-
     .call-avatar {
         width: 80px; height: 80px;
         border-radius: 50%;
@@ -152,23 +216,18 @@
         display: flex; align-items: center; justify-content: center;
         font-size: 2rem;
         font-weight: bold;
-        margin: 0 auto 20px;
+        margin: 0 auto 16px;
         box-shadow: 0 0 0 8px rgba(29,177,232,0.2);
     }
-
-    .call-name { color: white; font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
-    .call-status { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-bottom: 24px; }
-
-    .call-ripple {
-        animation: ripple 1.5s ease-in-out infinite;
-    }
-
+    .call-name { color: white; font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+    .call-status { color: rgba(255,255,255,0.55); font-size: 0.85rem; margin-bottom: 28px; }
+    .call-ripple { animation: ripple 1.5s ease-in-out infinite; }
     @keyframes ripple {
-        0%, 100% { box-shadow: 0 0 0 8px rgba(29,177,232,0.2); }
-        50% { box-shadow: 0 0 0 18px rgba(29,177,232,0.05); }
+        0%,100% { box-shadow: 0 0 0 8px rgba(29,177,232,0.2); }
+        50% { box-shadow: 0 0 0 20px rgba(29,177,232,0.05); }
     }
 
-    /* ─── ZONE VIDÉO ─── */
+    /* Zone vidéo */
     .video-container {
         display: none;
         position: relative;
@@ -179,49 +238,40 @@
         margin-bottom: 20px;
         aspect-ratio: 16/9;
     }
-
     .video-container.active { display: block; }
-
-    #remoteVideo {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 12px;
-    }
-
+    #remoteVideo { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
     #localVideo {
         position: absolute;
-        bottom: 10px;
-        right: 10px;
-        width: 90px;
-        height: 68px;
+        bottom: 10px; right: 10px;
+        width: 90px; height: 68px;
         object-fit: cover;
         border-radius: 8px;
         border: 2px solid rgba(255,255,255,0.5);
         background: #111;
     }
 
-    /* ─── BOUTONS D'ACTION ─── */
+    /* Boutons d'action */
     .call-actions {
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-end;
         gap: 20px;
         flex-wrap: wrap;
     }
-
-    .call-btn-wrapper {
+    .call-btn-wrap {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 6px;
+        gap: 7px;
     }
-
     .call-btn-label {
-        color: rgba(255,255,255,0.6);
-        font-size: 0.7rem;
+        color: rgba(255,255,255,0.65);
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.3px;
     }
 
+    /* Bouton Raccrocher */
     .btn-end-call {
         width: 62px; height: 62px;
         border-radius: 50%;
@@ -231,49 +281,119 @@
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
         transition: all 0.2s;
-        box-shadow: 0 4px 14px rgba(239,68,68,0.4);
+        box-shadow: 0 4px 16px rgba(239,68,68,0.45);
     }
-
     .btn-end-call:hover { background: #dc2626; transform: scale(1.08); }
     .btn-end-call svg { width: 26px; height: 26px; }
 
+    /* Boutons ronds secondaires */
     .btn-action {
-        width: 52px; height: 52px;
+        width: 54px; height: 54px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.15);
-        border: 2px solid rgba(255,255,255,0.25);
+        background: rgba(255,255,255,0.13);
+        border: 2px solid rgba(255,255,255,0.22);
         color: white;
         display: flex; align-items: center; justify-content: center;
         cursor: pointer;
         transition: all 0.2s;
     }
-
-    .btn-action:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
+    .btn-action svg { width: 22px; height: 22px; }
+    .btn-action:hover { background: rgba(255,255,255,0.22); transform: scale(1.06); }
     .btn-action.active { background: rgba(29,177,232,0.35); border-color: #1db1e8; }
     .btn-action.muted { background: rgba(239,68,68,0.3); border-color: #ef4444; }
-    .btn-action svg { width: 20px; height: 20px; }
 
-    /* Scrollbar discrète */
-    ::-webkit-scrollbar { width: 6px; }
+    /* ═══════════════════════════════════
+       RESPONSIVE MOBILE
+    ═══════════════════════════════════ */
+    @media (max-width: 768px) {
+        .wa-container { position: relative; overflow: hidden; }
+
+        /* Sidebar plein écran sur mobile */
+        .wa-sidebar {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 10;
+            flex: none;
+            transition: transform 0.3s ease;
+        }
+        .wa-sidebar.hidden-mobile {
+            transform: translateX(-100%);
+            pointer-events: none;
+        }
+
+        /* Chat plein écran sur mobile */
+        .wa-chat-area {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 5;
+            flex: none;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        .wa-chat-area.visible-mobile {
+            transform: translateX(0);
+        }
+
+        /* Bouton retour sur mobile */
+        .btn-back-mobile {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        /* Bulles plus larges sur mobile */
+        .wa-bubble { max-width: 85%; font-size: 0.9rem; }
+        .wa-chat-history { padding: 16px 12px; }
+        .wa-input-area { padding: 10px 12px; gap: 10px; }
+        .wa-input { font-size: 0.95rem; padding: 10px 16px; }
+
+        /* Modal appel plein écran sur mobile */
+        .call-modal { width: 90vw !important; max-width: 340px; padding: 32px 24px 28px; }
+        .call-modal.video-active { width: 95vw !important; max-width: 420px; }
+
+        /* Sidebar contacts sur mobile */
+        .wa-sidebar-header { padding: 0 16px; }
+        .wa-contact-item { padding: 14px 16px; }
+    }
+
+    @media (min-width: 769px) {
+        .btn-back-mobile { display: none !important; }
+        .wa-sidebar { position: static; width: 30%; height: auto; transform: none !important; }
+        .wa-chat-area { position: static; width: 70%; height: auto; transform: none !important; }
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
 </style>
 
-<div class="wa-container">
-    
-    <div class="wa-sidebar">
+<div class="wa-container" id="waContainer">
+
+    <!-- ─── SIDEBAR CONTACTS ─── -->
+    <div class="wa-sidebar" id="waSidebar">
         <div class="wa-sidebar-header">
             <h5 class="m-0 fw-bold" style="color: var(--marine-blue);">Discussions</h5>
             <a href="{% url 'nouveau_message' %}" class="btn-new-msg">+ Nouveau</a>
         </div>
-        
         <div class="wa-contacts">
             {% for c in contacts %}
-            <a href="{% url 'discussion' c.id %}" class="wa-contact-item {% if c.id == contact.id %}active{% endif %}">
+            <a href="{% url 'discussion' c.id %}"
+               class="wa-contact-item {% if c.id == contact.id %}active{% endif %}"
+               onclick="openChat(event, this)">
                 <div class="wa-avatar">
                     {{ c.first_name|first|default:c.username|first|upper }}
                 </div>
                 <div>
-                    <div class="fw-bold" style="color: #111; font-size: 1.05rem;">
+                    <div class="fw-bold" style="color:#111; font-size:1rem;">
                         {% if c.first_name %}{{ c.first_name }} {{ c.last_name }}{% else %}{{ c.username }}{% endif %}
                     </div>
                 </div>
@@ -282,10 +402,17 @@
         </div>
     </div>
 
-    <div class="wa-chat-area">
-        
-        <!-- Header avec bouton VoIP -->
+    <!-- ─── ZONE CHAT ─── -->
+    <div class="wa-chat-area" id="waChatArea">
+
         <div class="wa-chat-header">
+            <!-- Bouton retour mobile -->
+            <button class="btn-back-mobile" onclick="goBackToContacts()" title="Retour">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width:20px;height:20px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+
             <div class="wa-header-avatar">
                 {{ contact.first_name|first|default:contact.username|first|upper }}
             </div>
@@ -302,91 +429,69 @@
         </div>
 
         <div class="wa-chat-history" id="chatBox">
-            
             {% now "Y-m-d" as today_str %}
-
             {% for msg in messages %}
-            
                 {% ifchanged msg.date_envoi.date %}
-                <div class="text-center mb-4 mt-4">
-                    <span class="badge shadow-sm" style="background-color: rgba(255,255,255,0.15); color: white; font-weight: 500; padding: 6px 15px; border-radius: 12px; font-size: 0.8rem;">
-                        {% if msg.date_envoi|date:"Y-m-d" == today_str %}
-                            Aujourd'hui
-                        {% else %}
-                            {{ msg.date_envoi|date:"d F Y" }}
-                        {% endif %}
+                <div class="text-center mb-3 mt-3">
+                    <span class="badge shadow-sm" style="background:rgba(255,255,255,0.15);color:white;font-weight:500;padding:5px 14px;border-radius:12px;font-size:0.78rem;">
+                        {% if msg.date_envoi|date:"Y-m-d" == today_str %}Aujourd'hui{% else %}{{ msg.date_envoi|date:"d F Y" }}{% endif %}
                     </span>
                 </div>
                 {% endifchanged %}
-
                 {% if msg.expediteur == request.user %}
                     <div class="wa-bubble sent">
                         {{ msg.contenu|linebreaksbr }}
-                        <span class="wa-time" style="font-size: 0.65rem; color: #555; text-align: right; margin-top: 3px; display: block;">
-                            {{ msg.date_envoi|date:"H:i" }}
-                        </span>
+                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
                     </div>
                 {% else %}
                     <div class="wa-bubble received">
                         {{ msg.contenu|linebreaksbr }}
-                        <span class="wa-time" style="font-size: 0.65rem; color: #888; text-align: right; margin-top: 3px; display: block;">
-                            {{ msg.date_envoi|date:"H:i" }}
-                        </span>
+                        <span class="wa-time">{{ msg.date_envoi|date:"H:i" }}</span>
                     </div>
                 {% endif %}
-                
             {% empty %}
-                <div class="text-center text-white mt-4" style="opacity: 0.6;">
+                <div class="text-center text-white mt-4" style="opacity:0.6;">
                     Envoyez un message pour commencer.
                 </div>
             {% endfor %}
-            
         </div>
 
         <div class="wa-input-area">
-            <form method="post" action="{% url 'discussion' contact.id %}" class="d-flex w-100 m-0 gap-3">
+            <form method="post" action="{% url 'discussion' contact.id %}" class="d-flex w-100 m-0 gap-2">
                 {% csrf_token %}
-                <input type="text" name="contenu" class="wa-input shadow-sm" placeholder="Taper un message..." autocomplete="off" required>
+                <input type="text" name="contenu" class="wa-input shadow-sm"
+                       placeholder="Taper un message..." autocomplete="off" required>
                 <button type="submit" class="wa-btn-send shadow-sm">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>
                 </button>
             </form>
         </div>
-
     </div>
 </div>
-
-<script>
-    // ─── SCROLL AUTO ───
-    document.addEventListener("DOMContentLoaded", function() {
-        var chatBox = document.getElementById("chatBox");
-        chatBox.scrollTop = chatBox.scrollHeight;
-    });
-</script>
 
 <!-- ─── MODAL APPEL ENTRANT ─── -->
 <div class="call-modal-overlay" id="incomingModal">
     <div class="call-modal">
-        <div class="call-avatar" style="background: #1db1e8;">
+        <div class="call-avatar" style="background:#1db1e8;">
             <span id="incomingInitial">?</span>
         </div>
         <div class="call-name" id="incomingName">Appel entrant</div>
         <div class="call-status">souhaite vous appeler</div>
-        <div class="call-actions" style="margin-top:28px;">
-            <div class="call-btn-wrapper">
-                <button class="btn-end-call" onclick="rejectCall()" title="Refuser">
+        <div class="call-actions" style="margin-top:24px;">
+            <div class="call-btn-wrap">
+                <button class="btn-end-call" onclick="rejectCall()">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16.003 16.003 0 0114 0 16.003 16.003 0 010 14A16.003 16.003 0 015 17a16.003 16.003 0 010-14z"/>
+                            d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16 16 0 0114 0 16 16 0 010 14A16 16 0 015 17a16 16 0 010-14z"/>
                     </svg>
                 </button>
                 <span class="call-btn-label">Refuser</span>
             </div>
-            <div class="call-btn-wrapper">
-                <button class="btn-end-call" onclick="acceptCall()" title="Accepter"
-                    style="background:#22c55e; box-shadow: 0 4px 14px rgba(34,197,94,0.4);">
+            <div class="call-btn-wrap">
+                <button class="btn-end-call" onclick="acceptCall()"
+                    style="background:#22c55e;box-shadow:0 4px 16px rgba(34,197,94,0.45);">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
@@ -405,7 +510,6 @@
 <div class="call-modal-overlay" id="callModal">
     <div class="call-modal" id="callModalBox">
 
-        <!-- Avatar (caché quand vidéo active) -->
         <div class="call-avatar call-ripple" id="callAvatar">
             {{ contact.first_name|first|default:contact.username|first|upper }}
         </div>
@@ -414,16 +518,17 @@
         </div>
         <div class="call-status" id="callStatus">Appel en cours...</div>
 
-        <!-- Zone vidéo (cachée par défaut) -->
+        <!-- Zone vidéo -->
         <div class="video-container" id="videoContainer">
             <video id="remoteVideo" autoplay playsinline></video>
             <video id="localVideo" autoplay muted playsinline></video>
         </div>
 
-        <!-- Boutons d'action -->
+        <!-- Boutons -->
         <div class="call-actions">
-            <div class="call-btn-wrapper">
-                <button class="btn-action" id="btnMute" onclick="toggleMute()" title="Micro">
+
+            <div class="call-btn-wrap">
+                <button class="btn-action" id="btnMute" onclick="toggleMute()">
                     <svg id="muteIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
@@ -432,9 +537,9 @@
                 <span class="call-btn-label">Micro</span>
             </div>
 
-            <div class="call-btn-wrapper">
-                <button class="btn-action" id="btnCamera" onclick="toggleCamera()" title="Caméra">
-                    <svg id="cameraIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="call-btn-wrap">
+                <button class="btn-action" id="btnCamera" onclick="toggleCamera()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.36a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/>
                     </svg>
@@ -442,18 +547,18 @@
                 <span class="call-btn-label">Caméra</span>
             </div>
 
-            <div class="call-btn-wrapper">
-                <button class="btn-end-call" onclick="endCall()" title="Raccrocher">
+            <div class="call-btn-wrap">
+                <button class="btn-end-call" onclick="endCall()">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16.003 16.003 0 0114 0 16.003 16.003 0 010 14A16.003 16.003 0 015 17a16.003 16.003 0 010-14z"/>
+                            d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a16 16 0 0114 0 16 16 0 010 14A16 16 0 015 17a16 16 0 010-14z"/>
                     </svg>
                 </button>
                 <span class="call-btn-label">Raccrocher</span>
             </div>
 
-            <div class="call-btn-wrapper">
-                <button class="btn-action" id="btnSpeaker" onclick="toggleSpeaker()" title="Haut-parleur">
+            <div class="call-btn-wrap">
+                <button class="btn-action" id="btnSpeaker" onclick="toggleSpeaker()">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15.536 8.464a5 5 0 010 7.072M12 6v12m0 0l-4-4m4 4l4-4"/>
@@ -461,37 +566,73 @@
                 </button>
                 <span class="call-btn-label">Son</span>
             </div>
-        </div>
 
+        </div>
         <audio id="remoteAudio" autoplay></audio>
     </div>
 </div>
 
 <script>
 // ════════════════════════════════════════════════════════════
-//  HIMI VoIP — Signalisation WebRTC via Django Channels
+//  NAVIGATION MOBILE (Style WhatsApp)
 // ════════════════════════════════════════════════════════════
 
-const CONTACT_ID  = "{{ contact.id }}";
-const MY_NAME     = "{{ request.user.get_full_name|default:request.user.username }}";
+const isMobile = () => window.innerWidth <= 768;
 
-// ─── WebSocket de signalisation ───
+function openChat(event, el) {
+    if (!isMobile()) return; // sur desktop, navigation normale
+    event.preventDefault();
+    const href = el.getAttribute('href');
+    // Sur mobile : afficher le chat directement
+    document.getElementById('waSidebar').classList.add('hidden-mobile');
+    document.getElementById('waChatArea').classList.add('visible-mobile');
+    // Naviguer vers la conversation
+    window.location.href = href;
+}
+
+function goBackToContacts() {
+    document.getElementById('waSidebar').classList.remove('hidden-mobile');
+    document.getElementById('waChatArea').classList.remove('visible-mobile');
+}
+
+// Au chargement: sur mobile, si on est sur un chat, afficher le chat
+document.addEventListener('DOMContentLoaded', function() {
+    // Scroll en bas du chat
+    var chatBox = document.getElementById('chatBox');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+
+    // Sur mobile, afficher directement le chat si une conversation est ouverte
+    if (isMobile()) {
+        const hasMessages = document.querySelector('.wa-bubble') !== null;
+        const hasContacts = document.querySelector('.wa-contact-item.active') !== null;
+        if (hasMessages || hasContacts) {
+            document.getElementById('waSidebar').classList.add('hidden-mobile');
+            document.getElementById('waChatArea').classList.add('visible-mobile');
+        }
+    }
+});
+
+// ════════════════════════════════════════════════════════════
+//  VOIP WEBRTC
+// ════════════════════════════════════════════════════════════
+
+const CONTACT_ID = "{{ contact.id }}";
+const MY_NAME    = "{{ request.user.get_full_name|default:request.user.username }}";
+
 const wsScheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const wsUrl = `${wsScheme}://${window.location.host}/ws/voip/${CONTACT_ID}/`;
 let socket = null;
 
-// ─── État WebRTC ───
-let peerConnection = null;
-let localStream    = null;
+let peerConnection   = null;
+let localStream      = null;
 let localVideoStream = null;
-let isMuted        = false;
-let isVideoOn      = false;
-let isCaller       = false;
-let callTimer      = null;
-let callSeconds    = 0;
-let pendingOffer   = null;
+let isMuted          = false;
+let isVideoOn        = false;
+let isCaller         = false;
+let callTimer        = null;
+let callSeconds      = 0;
+let pendingOffer     = null;
 
-// ─── Config STUN/TURN ───
 const rtcConfig = {
     iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -499,23 +640,15 @@ const rtcConfig = {
     ],
 };
 
-// ════════ CONNEXION WEBSOCKET ════════
 function connectWebSocket() {
     socket = new WebSocket(wsUrl);
-
-    socket.onopen = () => console.log("[VoIP] WebSocket connecté");
-    socket.onclose = () => {
-        console.log("[VoIP] WebSocket fermé — reconnexion dans 3s");
-        setTimeout(connectWebSocket, 3000);
-    };
-    socket.onerror = (e) => console.error("[VoIP] Erreur WebSocket", e);
+    socket.onopen  = () => console.log("[VoIP] WebSocket connecté");
+    socket.onclose = () => { setTimeout(connectWebSocket, 3000); };
+    socket.onerror = (e) => console.error("[VoIP] Erreur", e);
     socket.onmessage = (event) => handleSignal(JSON.parse(event.data));
 }
 
-// ════════ DISPATCH DES MESSAGES DE SIGNALISATION ════════
 function handleSignal(data) {
-    console.log("[VoIP] Signal reçu:", data.type);
-
     switch (data.type) {
         case "call-request":
             showIncomingCall(data.sender_name);
@@ -526,7 +659,6 @@ function handleSignal(data) {
             break;
         case "offer":
             if (peerConnection && peerConnection.signalingState !== "closed") {
-                // Renégociation pendant l'appel (ex: activation caméra)
                 peerConnection.setRemoteDescription(
                     new RTCSessionDescription({ type: "offer", sdp: data.sdp })
                 ).then(async () => {
@@ -535,7 +667,6 @@ function handleSignal(data) {
                     signal({ type: "answer", sdp: answer.sdp });
                 }).catch(console.error);
             } else {
-                // Offre initiale d'appel
                 pendingOffer = data.sdp;
             }
             break;
@@ -548,9 +679,7 @@ function handleSignal(data) {
             break;
         case "ice-candidate":
             if (peerConnection && data.candidate) {
-                peerConnection.addIceCandidate(
-                    new RTCIceCandidate(data.candidate)
-                ).catch(console.error);
+                peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate)).catch(console.error);
             }
             break;
         case "call-ended":
@@ -558,20 +687,15 @@ function handleSignal(data) {
             stopCall();
             break;
         case "peer_disconnected":
-            if (peerConnection) {
-                setStatus("Connexion perdue");
-                stopCall();
-            }
+            if (peerConnection) { setStatus("Connexion perdue"); stopCall(); }
             break;
         case "video-on":
-            // L'autre utilisateur a activé sa caméra
             document.getElementById("videoContainer").classList.add("active");
             document.getElementById("callModalBox").classList.add("video-active");
             document.getElementById("callAvatar").style.display = "none";
             document.getElementById("callContactName").style.display = "none";
             break;
         case "video-off":
-            // L'autre utilisateur a désactivé sa caméra
             if (!isVideoOn) {
                 document.getElementById("videoContainer").classList.remove("active");
                 document.getElementById("callModalBox").classList.remove("video-active");
@@ -582,46 +706,37 @@ function handleSignal(data) {
     }
 }
 
-// ════════ ENVOYER UN MESSAGE DE SIGNALISATION ════════
 function signal(data) {
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify(data));
     }
 }
 
-// ════════ LANCER UN APPEL ════════
 async function startCall() {
     isCaller = true;
     showCallModal();
     setStatus("Appel en cours...");
-
     signal({ type: "call-request", sender_name: MY_NAME });
-
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         await createPeerConnection();
-
         const offer = await peerConnection.createOffer();
         await peerConnection.setLocalDescription(offer);
         signal({ type: "offer", sdp: offer.sdp });
-
     } catch (err) {
-        console.error("[VoIP] Erreur accès micro:", err);
+        console.error("[VoIP] Erreur micro:", err);
         setStatus("Microphone inaccessible");
         setTimeout(stopCall, 2000);
     }
 }
 
-// ════════ ACCEPTER UN APPEL ════════
 async function acceptCall() {
     hideIncomingModal();
     showCallModal();
     setStatus("Connexion...");
-
     try {
         localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         await createPeerConnection();
-
         if (pendingOffer) {
             await peerConnection.setRemoteDescription(
                 new RTCSessionDescription({ type: "offer", sdp: pendingOffer })
@@ -631,120 +746,81 @@ async function acceptCall() {
             signal({ type: "answer", sdp: answer.sdp });
             pendingOffer = null;
         }
-
     } catch (err) {
-        console.error("[VoIP] Erreur acceptCall:", err);
+        console.error("[VoIP] Erreur:", err);
         setStatus("Microphone inaccessible");
         setTimeout(stopCall, 2000);
     }
 }
 
-// ════════ REFUSER UN APPEL ════════
 function rejectCall() {
     hideIncomingModal();
     signal({ type: "call-rejected" });
     pendingOffer = null;
 }
 
-// ════════ TERMINER UN APPEL ════════
 function endCall() {
     signal({ type: "call-ended" });
     stopCall();
 }
 
-// ════════ ACTIVER / DÉSACTIVER CAMÉRA ════════
 async function toggleCamera() {
     if (!peerConnection) return;
-
     if (!isVideoOn) {
-        // Activer la caméra
         try {
             localVideoStream = await navigator.mediaDevices.getUserMedia({ video: true });
             const videoTrack = localVideoStream.getVideoTracks()[0];
-
-            // Afficher la vidéo locale
             document.getElementById("localVideo").srcObject = localVideoStream;
-
-            // Ajouter la piste vidéo à la connexion WebRTC
             peerConnection.addTrack(videoTrack, localVideoStream);
-
-            // Renegociation WebRTC
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
             signal({ type: "offer", sdp: offer.sdp });
-
-            // Informer l'autre utilisateur
             signal({ type: "video-on" });
-
-            // Afficher la zone vidéo
             document.getElementById("videoContainer").classList.add("active");
             document.getElementById("callModalBox").classList.add("video-active");
             document.getElementById("callAvatar").style.display = "none";
             document.getElementById("callContactName").style.display = "none";
-
-            // Mettre à jour le bouton
             document.getElementById("btnCamera").classList.add("active");
             isVideoOn = true;
-
         } catch (err) {
             console.error("[VoIP] Erreur caméra:", err);
             setStatus("Caméra inaccessible");
         }
     } else {
-        // Désactiver la caméra
-        if (localVideoStream) {
-            localVideoStream.getVideoTracks().forEach(t => t.stop());
-            localVideoStream = null;
-        }
-
+        if (localVideoStream) { localVideoStream.getVideoTracks().forEach(t => t.stop()); localVideoStream = null; }
         document.getElementById("localVideo").srcObject = null;
         signal({ type: "video-off" });
-
         document.getElementById("videoContainer").classList.remove("active");
         document.getElementById("callModalBox").classList.remove("video-active");
         document.getElementById("callAvatar").style.display = "flex";
         document.getElementById("callContactName").style.display = "block";
-
         document.getElementById("btnCamera").classList.remove("active");
         isVideoOn = false;
     }
 }
 
-// ════════ NETTOYAGE ════════
 function stopCall() {
     if (callTimer) { clearInterval(callTimer); callTimer = null; }
     if (localVideoStream) { localVideoStream.getTracks().forEach(t => t.stop()); localVideoStream = null; }
     if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
     if (peerConnection) { peerConnection.close(); peerConnection = null; }
-
-    isMuted = false;
-    isCaller = false;
-    isVideoOn = false;
-    pendingOffer = null;
-
-    // Reset vidéo
+    isMuted = false; isCaller = false; isVideoOn = false; pendingOffer = null;
     document.getElementById("localVideo").srcObject = null;
     document.getElementById("remoteVideo").srcObject = null;
     document.getElementById("videoContainer").classList.remove("active");
     document.getElementById("callModalBox").classList.remove("video-active");
     document.getElementById("callAvatar").style.display = "flex";
     document.getElementById("callContactName").style.display = "block";
-
-    // Reset boutons
     document.getElementById("btnMute")?.classList.remove("muted");
     document.getElementById("btnCamera")?.classList.remove("active");
     document.getElementById("remoteAudio").srcObject = null;
-
     hideCallModal();
     hideIncomingModal();
 }
 
-// ════════ PEER CONNECTION ════════
 async function createPeerConnection() {
     peerConnection = new RTCPeerConnection(rtcConfig);
-
     localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
     peerConnection.ontrack = (event) => {
         const stream = event.streams[0];
         if (event.track.kind === "audio") {
@@ -759,39 +835,24 @@ async function createPeerConnection() {
             document.getElementById("callContactName").style.display = "none";
         }
     };
-
     peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            signal({ type: "ice-candidate", candidate: event.candidate.toJSON() });
-        }
+        if (event.candidate) signal({ type: "ice-candidate", candidate: event.candidate.toJSON() });
     };
-
     peerConnection.onconnectionstatechange = () => {
-        console.log("[VoIP] État connexion:", peerConnection.connectionState);
-        if (peerConnection.connectionState === "failed") {
-            setStatus("Echec de connexion");
-            setTimeout(stopCall, 2000);
-        }
+        if (peerConnection.connectionState === "failed") { setStatus("Echec de connexion"); setTimeout(stopCall, 2000); }
     };
 }
 
-// ════════ CHRONO ════════
 function startChrono() {
     callSeconds = 0;
     if (callTimer) clearInterval(callTimer);
-    callTimer = setInterval(() => {
-        callSeconds++;
-        setStatus(formatTime(callSeconds));
-    }, 1000);
+    callTimer = setInterval(() => { callSeconds++; setStatus(formatTime(callSeconds)); }, 1000);
 }
 
 function formatTime(s) {
-    const m = String(Math.floor(s / 60)).padStart(2, "0");
-    const sec = String(s % 60).padStart(2, "0");
-    return `${m}:${sec}`;
+    return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
 
-// ════════ MICRO ════════
 function toggleMute() {
     if (!localStream) return;
     isMuted = !isMuted;
@@ -799,18 +860,16 @@ function toggleMute() {
     document.getElementById("btnMute").classList.toggle("muted", isMuted);
 }
 
-// ════════ HAUT-PARLEUR ════════
 function toggleSpeaker() {
     const audio = document.getElementById("remoteAudio");
     audio.muted = !audio.muted;
     document.getElementById("btnSpeaker").classList.toggle("muted", audio.muted);
 }
 
-// ════════ UI ════════
-function showCallModal()    { document.getElementById("callModal").classList.add("active"); }
-function hideCallModal()    { document.getElementById("callModal").classList.remove("active"); }
-function hideIncomingModal(){ document.getElementById("incomingModal").classList.remove("active"); }
-function setStatus(text)    { document.getElementById("callStatus").textContent = text; }
+function showCallModal()     { document.getElementById("callModal").classList.add("active"); }
+function hideCallModal()     { document.getElementById("callModal").classList.remove("active"); }
+function hideIncomingModal() { document.getElementById("incomingModal").classList.remove("active"); }
+function setStatus(text)     { document.getElementById("callStatus").textContent = text; }
 
 function showIncomingCall(senderName) {
     const parts = senderName.trim().split(" ");
@@ -819,7 +878,6 @@ function showIncomingCall(senderName) {
     document.getElementById("incomingModal").classList.add("active");
 }
 
-// ════════ DÉMARRAGE ════════
 connectWebSocket();
 </script>
 {% endblock %}

@@ -29,10 +29,6 @@ class ProfesseurInlineForm(forms.ModelForm):
 
 
 class EtudiantInline(admin.StackedInline):
-    """
-    Inline affiché dans le formulaire User pour créer le profil
-    étudiant en même temps que le compte Django.
-    """
     model = Etudiant
     form = EtudiantInlineForm
     can_delete = False
@@ -43,10 +39,6 @@ class EtudiantInline(admin.StackedInline):
 
 
 class ProfesseurInline(admin.StackedInline):
-    """
-    Inline affiché dans le formulaire User pour créer le profil
-    professeur en même temps que le compte Django.
-    """
     model = Professeur
     form = ProfesseurInlineForm
     can_delete = False
@@ -57,23 +49,16 @@ class ProfesseurInline(admin.StackedInline):
 
 
 # ════════════════════════════════════════════════════════
-#  USER ADMIN — avec choix du rôle et création profil
+#  USER ADMIN
 # ════════════════════════════════════════════════════════
 
 class HimiUserAdmin(BaseUserAdmin):
-    """
-    Admin User enrichi : affiche l'inline Etudiant ET Professeur.
-    L'administrateur remplit celui qui correspond au rôle.
-    """
     inlines = [EtudiantInline, ProfesseurInline]
-
-    # Colonnes affichées dans la liste
     list_display = ('username', 'first_name', 'last_name', 'email', 'get_role', 'is_active')
     list_filter  = ('is_active', 'is_staff')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('last_name', 'first_name')
 
-    # Sections du formulaire User
     fieldsets = (
         ("Identifiants de connexion", {
             'fields': ('username', 'password')
@@ -105,7 +90,6 @@ class HimiUserAdmin(BaseUserAdmin):
     get_role.short_description = 'Role'
 
 
-# Remplacer le UserAdmin par défaut
 admin.site.unregister(User)
 admin.site.register(User, HimiUserAdmin)
 
@@ -142,7 +126,7 @@ class EtudiantAdmin(admin.ModelAdmin):
     list_filter   = ('classe',)
     search_fields = ('user__first_name', 'user__last_name', 'user__username')
     ordering      = ('user__last_name',)
-    autocomplete_fields = ['classe']
+    # autocomplete_fields supprimé car conflictue avec le site admin personnalisé
 
     def nom_complet(self, obj):
         return f"{obj.user.last_name} {obj.user.first_name}"
@@ -151,10 +135,10 @@ class EtudiantAdmin(admin.ModelAdmin):
 
 @admin.register(Professeur)
 class ProfesseurAdmin(admin.ModelAdmin):
-    list_display     = ('nom_complet', 'telephone', 'liste_matieres', 'liste_classes')
-    search_fields    = ('user__first_name', 'user__last_name', 'telephone')
+    list_display      = ('nom_complet', 'telephone', 'liste_matieres', 'liste_classes')
+    search_fields     = ('user__first_name', 'user__last_name', 'telephone')
     filter_horizontal = ('matieres', 'classes')
-    ordering         = ('user__last_name',)
+    ordering          = ('user__last_name',)
 
     def nom_complet(self, obj):
         return str(obj)
@@ -228,27 +212,26 @@ class ActualiteAdmin(admin.ModelAdmin):
 
 @admin.register(Message)
 class MessageAdmin(admin.ModelAdmin):
-    list_display  = ('expediteur', 'destinataire', 'date_envoi', 'lu')
-    list_filter   = ('lu',)
-    search_fields = ('expediteur__last_name', 'destinataire__last_name')
-    ordering      = ('-date_envoi',)
+    list_display    = ('expediteur', 'destinataire', 'date_envoi', 'lu')
+    list_filter     = ('lu',)
+    search_fields   = ('expediteur__last_name', 'destinataire__last_name')
+    ordering        = ('-date_envoi',)
     readonly_fields = ('date_envoi',)
 
 
 # ════════════════════════════════════════════════════════
 #  ENREGISTREMENT SUR himi_admin_site
-#  (même config que le site admin Django standard)
 # ════════════════════════════════════════════════════════
 
-himi_admin_site.register(User,                 HimiUserAdmin)
+himi_admin_site.register(User,               HimiUserAdmin)
 himi_admin_site.register(Group)
-himi_admin_site.register(Classe,               ClasseAdmin)
-himi_admin_site.register(Matiere,              MatiereAdmin)
-himi_admin_site.register(Etudiant,             EtudiantAdmin)
-himi_admin_site.register(Professeur,           ProfesseurAdmin)
-himi_admin_site.register(Note,                 NoteAdmin)
-himi_admin_site.register(Moyenne,              MoyenneAdmin)
-himi_admin_site.register(CoursEmploiDuTemps,   CoursEmploiDuTempsAdmin)
-himi_admin_site.register(SupportCours,         SupportCoursAdmin)
-himi_admin_site.register(Actualite,            ActualiteAdmin)
-himi_admin_site.register(Message,              MessageAdmin)
+himi_admin_site.register(Classe,             ClasseAdmin)
+himi_admin_site.register(Matiere,            MatiereAdmin)
+himi_admin_site.register(Etudiant,           EtudiantAdmin)
+himi_admin_site.register(Professeur,         ProfesseurAdmin)
+himi_admin_site.register(Note,               NoteAdmin)
+himi_admin_site.register(Moyenne,            MoyenneAdmin)
+himi_admin_site.register(CoursEmploiDuTemps, CoursEmploiDuTempsAdmin)
+himi_admin_site.register(SupportCours,       SupportCoursAdmin)
+himi_admin_site.register(Actualite,          ActualiteAdmin)
+himi_admin_site.register(Message,            MessageAdmin)
