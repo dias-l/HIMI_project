@@ -447,6 +447,24 @@ a.view-related::after { content: '◉' !important; }
     input[type="text"], select, textarea { max-width: 100% !important; }
 }
 
+
+/* ─── FIX: lignes modèles sidebar (fond blanc sur blanc) ─── */
+#nav-sidebar .module table,
+#nav-sidebar .module tr,
+#nav-sidebar .module td,
+#nav-sidebar .module th {
+    background: var(--marine) !important;
+    color: rgba(255,255,255,0.7) !important;
+    border: none !important;
+}
+
+#nav-sidebar .module a,
+#nav-sidebar .module a:link,
+#nav-sidebar .module a:visited {
+    background: var(--marine) !important;
+    color: rgba(255,255,255,0.7) !important;
+}
+
 </style>
 {% endblock %}
 
